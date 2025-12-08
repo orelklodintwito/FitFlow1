@@ -1,0 +1,60 @@
+/* ========================================================= */
+/* GLOBAL LAYOUT WRAPPERS */
+/* ========================================================= */
+
+.page-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 30px 0;
+}
+
+.page-content {
+  width: 100%;
+  max-width: 1100px; /* ✔ כל האתר במרכז */
+  margin: 0 auto;
+}
+
+/* ========================================================= */
+/* GRID HELPERS */
+/* ========================================================= */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+/* ========================================================= */
+/* GENERAL CARD SPACING */
+/* ========================================================= */
+
+.card,
+.dashboard-card,
+.meal-card,
+.glass {
+  margin-bottom: 28px; /* ✔ רווח אחיד בין כרטיסיות */
+}
+
+/* ========================================================= */
+/* RESPONSIVE BREAKPOINTS */
+/* ========================================================= */
+
+@media (max-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}

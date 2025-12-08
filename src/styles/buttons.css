@@ -1,0 +1,95 @@
+/* ========================================================= */
+/* GENERAL BUTTON STYLES — PASTEL ONLY */
+/* ========================================================= */
+
+button {
+  cursor: pointer;
+  transition: 0.22s ease-in-out;
+  font-weight: 600;
+  border: none;
+}
+
+/* ========================================================= */
+/* PRIMARY — BLUE PASTEL */
+/* ========================================================= */
+
+.btn-blue {
+  background-color: var(--pastel-blue);
+  color: #06131f;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.btn-blue:hover {
+  filter: brightness(0.93);
+}
+
+/* ========================================================= */
+/* GREEN PASTEL — ADD BUTTONS */
+/* ========================================================= */
+
+.btn-green {
+  background-color: var(--pastel-green);
+  color: #051b0a;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.btn-green:hover {
+  filter: brightness(0.92);
+}
+
+/* ========================================================= */
+/* YELLOW PASTEL */
+/* ========================================================= */
+
+.btn-yellow {
+  background-color: var(--pastel-yellow);
+  color: #4a3b00;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.btn-yellow:hover {
+  filter: brightness(0.9);
+}
+
+/* ========================================================= */
+/* PINK PASTEL */
+/* ========================================================= */
+
+.btn-pink {
+  background-color: var(--pastel-pink);
+  color: #4f0c14;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.btn-pink:hover {
+  filter: brightness(0.9);
+}
+
+/* ========================================================= */
+/* RED BUTTON (DELETE / CLOSE) */
+/* ========================================================= */
+
+.btn-red {
+  background-color: #ff5959;
+  color: #ffffff;
+
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.btn-red:hover {
+  filter: brightness(0.9);
+}

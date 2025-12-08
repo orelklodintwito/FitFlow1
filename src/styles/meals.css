@@ -1,0 +1,216 @@
+/* ========================================================= */
+/* FILTER BAR */
+/* ========================================================= */
+
+.dashboard-filter {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 10px 0;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
+
+.filter-buttons button {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: none;
+  background: var(--pastel-yellow);
+  color: #181818;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.filter-buttons button:hover {
+  filter: brightness(1.09);
+}
+
+.filter-buttons button.active {
+  filter: brightness(0.92);
+}
+
+/* ========================================================= */
+/* MEALS GRID */
+/* ========================================================= */
+
+.meals-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 32px; /* ✔ רווח יפה בין הכרטיסיות */
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .meals-row {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .meals-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================================= */
+/* MEAL CARD */
+/* ========================================================= */
+
+.meal-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 18px;
+
+  background: var(--glass-dark); /* ✔ אפור כהה שקוף 90% */
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 15px 38px rgba(0, 0, 0, 0.75);
+
+  transition: 0.25s ease;
+  min-height: 280px;
+}
+
+.meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.85);
+}
+
+.meal-card h2 {
+  text-align: center; /* ✔ הכותרת ממורכזת */
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.small-text {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #cccccc;
+}
+
+/* ========================================================= */
+/* ADD BUTTON — GREEN PASTEL */
+/* ========================================================= */
+
+.meal-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.meal-add-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: none;
+
+  background: var(--pastel-green); /* ✔ ירוק פסטל בהיר */
+  color: #051b0a;
+  font-weight: 700;
+  font-size: 1rem;
+
+  cursor: pointer;
+  transition: 0.22s ease;
+}
+
+.meal-add-btn:hover {
+  filter: brightness(0.92);
+}
+
+/* ========================================================= */
+/* EMPTY STATE */
+/* ========================================================= */
+
+.meal-empty-text {
+  margin-top: 14px;
+  opacity: 0.7;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #d1d1d1;
+}
+
+/* ========================================================= */
+/* FOOD ITEM */
+/* ========================================================= */
+
+.food-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.food-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-btn {
+  background: #ffe38a;
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.edit-btn:hover {
+  background: #f5d46c;
+}
+
+.remove-btn {
+  background: #ff4d4d;
+  color: #fff;
+  padding: 7px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.remove-btn:hover {
+  background: #e63a3a;
+}
+
+/* ========================================================= */
+/* ADD MEAL — FLOATING BUTTON */
+/* ========================================================= */
+
+.add-meal-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+.floating-add-meal {
+  padding: 12px 20px;
+  background: var(--pastel-blue);
+  border-radius: 999px;
+  border: none;
+  color: #06131f;
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.22s ease;
+}
+
+.floating-add-meal:hover {
+  filter: brightness(0.92);
+}

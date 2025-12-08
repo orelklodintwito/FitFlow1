@@ -1,0 +1,67 @@
+/* ========================================================= */
+/* GLOBAL RESET + DARK THEME */
+/* ========================================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Pastel palette */
+  --pastel-blue: #a7d8ff;
+  --pastel-green: #c9f7d1;
+  --pastel-yellow: #ffe9b3;
+  --pastel-pink: #ffc9d4;
+  --pastel-purple: #d8c9ff;
+
+  /* New charcoal background (Option B you chose) */
+  --bg-main: #0d0d0d;
+
+  /* Cards new color: dark gray with 90% opacity */
+  --glass-dark: rgba(30, 30, 30, 0.9);
+
+  /* Border subtle */
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  min-height: 100vh;
+  background: var(--bg-main);
+  color: #e6e6e6;
+}
+
+body:not(.auth-page) {
+  background: var(--bg-main) !important;
+}
+
+/* Root stretches full page */
+#root {
+  min-height: 100vh;
+}
+
+/* ========================================================= */
+/* GLOBAL CARD DESIGN */
+/* ========================================================= */
+
+.card,
+.dashboard-card,
+.meal-card,
+.glass {
+  background: var(--glass-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.7);
+  padding: 20px;
+}
+
+/* ========================================================= */
+/* TEXT COLOR UTILITIES */
+/* ========================================================= */
+
+.small-text {
+  color: #cccccc;
+}
