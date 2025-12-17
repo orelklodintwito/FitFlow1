@@ -1,11 +1,14 @@
 // src/App.jsx
 import { useState, useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+
 import Header from "./components/Header.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
 import MealsPage from "./pages/MealsPage.jsx";
 import ApiPage from "./pages/ApiPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -27,39 +30,36 @@ import "./styles/api.css";
 // --------------------------------
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [page, setPage] = useState("home");
-  const [showSignup, setShowSignup] = useState(false);
+  /* ---------- LOGIN (Persisted) ---------- */
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
 
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
+
+  const [showSignup, setShowSignup] = useState(false);
+  const navigate = useNavigate();
+
+  /* ---------- MEALS ---------- */
   const [meals, setMeals] = useState({
     breakfast: [],
     lunch: [],
     dinner: []
   });
 
-  /* AUTH PAGE BACKGROUND HANDLING */
-  useEffect(() => {
-    if (!isLoggedIn) {
-      document.body.classList.add("auth-page");
-    } else {
-      document.body.classList.remove("auth-page");
-    }
-  }, [isLoggedIn]);
-
-  /* LOAD MEALS FROM LOCAL STORAGE */
   useEffect(() => {
     const saved = localStorage.getItem("meals");
     if (saved) setMeals(JSON.parse(saved));
   }, []);
 
-  /* SAVE MEALS TO LOCAL STORAGE */
   useEffect(() => {
     localStorage.setItem("meals", JSON.stringify(meals));
   }, [meals]);
 
   const today = () => new Date().toISOString().split("T")[0];
 
-  /* ADD FOOD (MANUAL) */
   const addFoodManual = (mealType, food) => {
     setMeals(prev => ({
       ...prev,
@@ -67,7 +67,6 @@ function App() {
     }));
   };
 
-  /* ADD FOOD (API) */
   const addFoodFromApi = (mealType, foodObj) => {
     setMeals(prev => ({
       ...prev,
@@ -75,7 +74,6 @@ function App() {
     }));
   };
 
-  /* REMOVE FOOD */
   const removeFood = (mealType, index) => {
     setMeals(prev => {
       const updated = [...prev[mealType]];
@@ -84,7 +82,6 @@ function App() {
     });
   };
 
-  /* -------------- NEW: EDIT FOOD -------------- */
   const editFood = (mealType, index, newFood) => {
     setMeals(prev => {
       const updated = [...prev[mealType]];
@@ -92,10 +89,9 @@ function App() {
       return { ...prev, [mealType]: updated };
     });
   };
-  /* ---------------------------------------------- */
 
+  /* ---------- MODALS ---------- */
   const [mealType, setMealType] = useState("");
-
   const [showApiModal, setShowApiModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
 
@@ -109,7 +105,13 @@ function App() {
     setShowManualModal(true);
   };
 
-  /* ---------------- LOGIN MODE ---------------- */
+  /* ---------- AUTH BACKGROUND ---------- */
+  useEffect(() => {
+    if (!isLoggedIn) document.body.classList.add("auth-page");
+    else document.body.classList.remove("auth-page");
+  }, [isLoggedIn]);
+
+  /* ---------- LOGIN MODE ---------- */
   if (!isLoggedIn) {
     return showSignup ? (
       <Signup setShowSignup={setShowSignup} setIsLoggedIn={setIsLoggedIn} />
@@ -120,33 +122,45 @@ function App() {
 
   return (
     <div className="app-container">
-      <Header page={page} setPage={setPage} setIsLoggedIn={setIsLoggedIn} />
+      <Header setIsLoggedIn={setIsLoggedIn} />
 
-      <main className={`main-content ${page === "home" ? "home-bg" : ""}`}>
-
-        {page === "home" && (
-          <HomePage
-            meals={meals}
-            openFoodSearch={openFoodSearch}
-            openManualFood={openManualFood}
+      <main className="main-content">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                meals={meals}
+                openFoodSearch={openFoodSearch}
+                openManualFood={openManualFood}
+              />
+            }
           />
-        )}
 
-        {page === "meals" && (
-          <MealsPage
-            meals={meals}
-            removeFood={removeFood}
-            openFoodSearch={openFoodSearch}
-            openManualFood={openManualFood}
-            onEditFood={editFood}  
+          <Route
+            path="/form"
+            element={
+              <MealsPage
+                meals={meals}
+                removeFood={removeFood}
+                openFoodSearch={openFoodSearch}
+                openManualFood={openManualFood}
+                onEditFood={editFood}
+              />
+            }
           />
-        )}
 
-        {page === "recipes" && <ApiPage />}
-        {page === "settings" && <SettingsPage />}
+          <Route path="/api" element={<ApiPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+
+          {/* ✅ 404 – REQUIRED */}
+          <Route
+            path="*"
+            element={<NotFound goHome={() => navigate("/")} />}
+          />
+        </Routes>
       </main>
 
-      {/* API MODAL */}
       {showApiModal && (
         <FoodSearchModal
           meal={mealType}
@@ -155,7 +169,6 @@ function App() {
         />
       )}
 
-      {/* MANUAL MODAL */}
       {showManualModal && (
         <ManualFoodModal
           meal={mealType}
@@ -167,4 +180,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

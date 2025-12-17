@@ -1,43 +1,56 @@
 // src/components/Header.jsx
-import React from "react";
+import { NavLink } from "react-router-dom";
 import "../styles/header.css";
 
-function Header({ page, setPage, setIsLoggedIn }) {
+function Header({ setIsLoggedIn }) {
   return (
     <header className="header">
-
       <div className="logo">FitFlow</div>
 
       <nav className="nav">
-        <button
-          className={`nav-pill ${page === "home" ? "active" : ""}`}
-          onClick={() => setPage("home")}
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `nav-pill ${isActive ? "active" : ""}`
+          }
         >
           Home
-        </button>
+        </NavLink>
 
-        <button
-          className={`nav-pill ${page === "meals" ? "active" : ""}`}
-          onClick={() => setPage("meals")}
+        <NavLink
+          to="/form"
+          className={({ isActive }) =>
+            `nav-pill ${isActive ? "active" : ""}`
+          }
         >
           Meals
-        </button>
+        </NavLink>
 
-        <button
-          className={`nav-pill ${page === "recipes" ? "active" : ""}`}
-          onClick={() => setPage("recipes")}
+        <NavLink
+          to="/api"
+          className={({ isActive }) =>
+            `nav-pill ${isActive ? "active" : ""}`
+          }
         >
           Recipes
-        </button>
+        </NavLink>
 
-        <button
-          className={`nav-pill ${page === "settings" ? "active" : ""}`}
-          onClick={() => setPage("settings")}
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `nav-pill ${isActive ? "active" : ""}`
+          }
         >
           Profile
-        </button>
+        </NavLink>
 
-        <button className="logout-pill" onClick={() => setIsLoggedIn(false)}>
+        <button
+          className="logout-pill"
+          onClick={() => {
+            localStorage.removeItem("isLoggedIn");
+            setIsLoggedIn(false);
+          }}
+        >
           Logout
         </button>
       </nav>

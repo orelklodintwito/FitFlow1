@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
+import { useFavorites } from "../context/FavoritesContext.jsx";
 
 function HomePage({ openFoodSearch, openManualFood }) {
   const challengeProgress = 57;
@@ -12,6 +13,8 @@ function HomePage({ openFoodSearch, openManualFood }) {
     { id: 2, text: "10,000 Steps", done: false },
     { id: 3, text: "Eat 3 Healthy Meals", done: false },
   ];
+
+  const { favorites, removeFavorite } = useFavorites();
 
   const motivation =
     challengeProgress < 50
@@ -46,6 +49,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
     openFoodSearch(chosenMeal);
     closeCalorieModal();
   };
+
   return (
     <div className="home-full-bg">
       <div className="dashboard">
@@ -81,7 +85,6 @@ function HomePage({ openFoodSearch, openManualFood }) {
           <h2>Challenge</h2>
 
           <div className="challenge-flex">
-            {/* GRAPH - LEFT with spacing */}
             <div className="challenge-graph">
               <div
                 className="circle-progress"
@@ -91,7 +94,6 @@ function HomePage({ openFoodSearch, openManualFood }) {
               </div>
             </div>
 
-            {/* TASKS - RIGHT */}
             <div className="challenge-tasks">
               {challengeTasks.map((t) => (
                 <div
@@ -121,10 +123,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
 
             <div className="cal-right">
               <div className="cal-progress">
-                <div
-                  className="cal-fill"
-                  style={{ width: "40%" }}
-                ></div>
+                <div className="cal-fill" style={{ width: "40%" }}></div>
               </div>
             </div>
           </div>
@@ -155,17 +154,13 @@ function HomePage({ openFoodSearch, openManualFood }) {
         {/* SUMMARY + BMI */}
         {/* ====================================================== */}
         <div className="summary-bmi-row">
-
-          {/* SUMMARY */}
           <div className="dashboard-card summary-card">
             <h2>Today's Summary</h2>
-
             <p>✔ Drank 2L Water</p>
             <p>✔ Ate 3 Healthy Meals</p>
             <p>✔ Completed Steps Goal</p>
           </div>
 
-          {/* BMI */}
           <div className="dashboard-card bmi-card">
             <h2>BMI</h2>
 
@@ -189,6 +184,31 @@ function HomePage({ openFoodSearch, openManualFood }) {
         </div>
 
         {/* ====================================================== */}
+        {/* ⭐ FAVORITES – CONTEXT REQUIRED SECTION */}
+        {/* ====================================================== */}
+        <div className="dashboard-card">
+          <h2>My Favorites</h2>
+
+          {favorites.length === 0 ? (
+            <p>No favorites yet</p>
+          ) : (
+            <ul>
+              {favorites.map((f) => (
+                <li key={f.id} style={{ marginBottom: "8px" }}>
+                  {f.name}
+                  <button
+                    style={{ marginLeft: "10px" }}
+                    onClick={() => removeFavorite(f.id)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* ====================================================== */}
         {/* MODAL FOR ADDING FOOD */}
         {/* ====================================================== */}
         {chosenMeal && (
@@ -197,7 +217,6 @@ function HomePage({ openFoodSearch, openManualFood }) {
               <h2 className="modal-title">Add to {chosenMeal}</h2>
               <p className="modal-sub">Choose how to add:</p>
 
-              {/* Back to original text */}
               <button className="option-btn" onClick={handleManualAdd}>
                 Add Manually
               </button>
@@ -212,6 +231,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

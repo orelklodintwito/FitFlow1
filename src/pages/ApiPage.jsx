@@ -4,13 +4,17 @@ import "../styles/api.css";
 import "../styles/modal.css";
 import "../styles/components.css";
 import "../styles/layout.css";
+import { useFavorites } from "../context/FavoritesContext.jsx";
 
 const ApiPage = () => {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);     // ← חדש
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("salad");
   const [query, setQuery] = useState("salad");
+
+  // ✅ CONTEXT
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   /* ========================================================= */
   /* FETCH FROM API */
@@ -60,7 +64,11 @@ const ApiPage = () => {
         </form>
 
         {/* ERROR HANDLING */}
-        {error && <p className="error-text" style={{ textAlign: "center" }}>{error}</p>}
+        {error && (
+          <p className="error-text" style={{ textAlign: "center" }}>
+            {error}
+          </p>
+        )}
 
         {/* RESULTS */}
         {loading ? (
@@ -72,33 +80,51 @@ const ApiPage = () => {
             {meals.length === 0 ? (
               <p className="no-results">No recipes found</p>
             ) : (
-              meals.map((meal) => (
-                <div key={meal.idMeal} className="recipe-card">
-                  <img
-                    src={meal.strMealThumb}
-                    alt={meal.strMeal}
-                    className="recipe-img"
-                  />
+              meals.map((meal) => {
+                // ✅ REQUIRED BY CONTEXT SECTION
+                const item = {
+                  id: meal.idMeal,
+                  name: meal.strMeal
+                };
 
-                  <h3 className="recipe-title">{meal.strMeal}</h3>
+                return (
+                  <div key={meal.idMeal} className="recipe-card">
+                    <img
+                      src={meal.strMealThumb}
+                      alt={meal.strMeal}
+                      className="recipe-img"
+                    />
 
-                  <p className="recipe-info">
-                    <strong>Category:</strong> {meal.strCategory}
-                  </p>
-                  <p className="recipe-info">
-                    <strong>Area:</strong> {meal.strArea}
-                  </p>
+                    <h3 className="recipe-title">{meal.strMeal}</h3>
 
-                  <a
-                    href={meal.strYoutube}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="recipe-btn"
-                  >
-                    View Recipe ▶
-                  </a>
-                </div>
-              ))
+                    <p className="recipe-info">
+                      <strong>Category:</strong> {meal.strCategory}
+                    </p>
+                    <p className="recipe-info">
+                      <strong>Area:</strong> {meal.strArea}
+                    </p>
+
+                    <a
+                      href={meal.strYoutube}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="recipe-btn"
+                    >
+                      View Recipe ▶
+                    </a>
+
+                    {/* ⭐ CONTEXT USAGE – REQUIRED */}
+                    <button
+                      className="recipe-btn"
+                      onClick={() => toggleFavorite(item)}
+                    >
+                      {isFavorite(item.id)
+                        ? "★ Favorited"
+                        : "☆ Add to favorites"}
+                    </button>
+                  </div>
+                );
+              })
             )}
           </div>
         )}
