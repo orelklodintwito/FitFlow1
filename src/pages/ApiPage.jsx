@@ -1,31 +1,43 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-
+// src/pages/ApiPage.jsx
+import React, { useEffect, useState } from "react";
 import "../styles/api.css";
 import "../styles/modal.css";
 import "../styles/components.css";
 import "../styles/layout.css";
-
 import { useFavorites } from "../context/FavoritesContext.jsx";
-import { useApi } from "../hooks/useApi";
-import { toggleMode } from "../redux/themeSlice";
 
 const ApiPage = () => {
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("salad");
   const [query, setQuery] = useState("salad");
 
-  // ⭐ CONTEXT – Favorites
+  // ✅ CONTEXT
   const { toggleFavorite, isFavorite } = useFavorites();
 
-  // ⭐ REDUX – Theme
-  const mode = useSelector((state) => state.theme.mode);
-  const dispatch = useDispatch();
+  /* ========================================================= */
+  /* FETCH FROM API */
+  /* ========================================================= */
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
 
-  // ⭐ CUSTOM HOOK – API
-  const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
-  const { data, loading, error } = useApi(url);
-
-  const meals = data?.meals || [];
+    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Network response error");
+        return res.json();
+      })
+      .then(data => {
+        setMeals(data.meals || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError("Failed to load recipes. Please try again.");
+        setLoading(false);
+      });
+  }, [query]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -33,26 +45,13 @@ const ApiPage = () => {
   };
 
   return (
-    <div className={`page-wrapper ${mode}`}>
+    <div className="page-wrapper">
       <div className="page-content">
 
         <h1 className="api-title">Healthy Recipes</h1>
         <p className="api-sub">Live results from TheMealDB API</p>
 
-        {/* ⭐ REDUX UI – REQUIRED (Part 4) */}
-        <button
-          onClick={() => dispatch(toggleMode())}
-          style={{
-            marginBottom: "20px",
-            padding: "10px 20px",
-            borderRadius: "20px",
-            cursor: "pointer",
-          }}
-        >
-          Switch to {mode === "dark" ? "Light" : "Dark"} Mode
-        </button>
-
-        {/* SEARCH */}
+        {/* SEARCH AREA */}
         <form className="search-area" onSubmit={handleSearch}>
           <input
             type="text"
@@ -64,7 +63,7 @@ const ApiPage = () => {
           <button className="search-btn">Search</button>
         </form>
 
-        {/* ERROR */}
+        {/* ERROR HANDLING */}
         {error && (
           <p className="error-text" style={{ textAlign: "center" }}>
             {error}
@@ -82,9 +81,10 @@ const ApiPage = () => {
               <p className="no-results">No recipes found</p>
             ) : (
               meals.map((meal) => {
+                // ✅ REQUIRED BY CONTEXT SECTION
                 const item = {
                   id: meal.idMeal,
-                  name: meal.strMeal,
+                  name: meal.strMeal
                 };
 
                 return (
@@ -100,7 +100,6 @@ const ApiPage = () => {
                     <p className="recipe-info">
                       <strong>Category:</strong> {meal.strCategory}
                     </p>
-
                     <p className="recipe-info">
                       <strong>Area:</strong> {meal.strArea}
                     </p>
@@ -114,7 +113,7 @@ const ApiPage = () => {
                       View Recipe ▶
                     </a>
 
-                    {/* ⭐ CONTEXT FEATURE – Favorites */}
+                    {/* ⭐ CONTEXT USAGE – REQUIRED */}
                     <button
                       className="recipe-btn"
                       onClick={() => toggleFavorite(item)}

@@ -110,18 +110,3 @@
   font-weight: 700;
   color: white;
 }
-
-
-/* THEME – REQUIRED BY ASSIGNMENT */
-
-/* Dark mode */
-.dark {
-  background-color: #121212;
-  color: white;
-}
-
-/* Light mode */
-.light {
-  background-color: #f5f5f5;
-  color: #111;
-}

@@ -1,9 +1,6 @@
 // src/components/Header.jsx
 import { NavLink } from "react-router-dom";
 import "../styles/header.css";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleMode } from "../redux/themeSlice";
-
 
 function Header({ setIsLoggedIn }) {
   return (
@@ -61,4 +58,4 @@ function Header({ setIsLoggedIn }) {
   );
 }
 
-export default Header; 
+export default Header;

@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-// ⭐ Custom Hook – REQUIRED (Part 1)
-import { useLocalStorage } from "./hooks/useLocalStorage";
-
 import Header from "./components/Header.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
@@ -33,21 +30,33 @@ import "./styles/api.css";
 // --------------------------------
 
 function App() {
-  /* ====================================================== */
-  /* LOGIN – Persisted via useLocalStorage (Part 1 ✔️) */
-  /* ====================================================== */
-  const [isLoggedIn, setIsLoggedIn] = useLocalStorage("isLoggedIn", false);
+  /* ---------- LOGIN (Persisted) ---------- */
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
+
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
+
   const [showSignup, setShowSignup] = useState(false);
   const navigate = useNavigate();
 
-  /* ====================================================== */
-  /* MEALS – Persisted via useLocalStorage (Part 1 ✔️) */
-  /* ====================================================== */
-  const [meals, setMeals] = useLocalStorage("meals", {
+  /* ---------- MEALS ---------- */
+  const [meals, setMeals] = useState({
     breakfast: [],
     lunch: [],
     dinner: []
   });
+
+  useEffect(() => {
+    const saved = localStorage.getItem("meals");
+    if (saved) setMeals(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("meals", JSON.stringify(meals));
+  }, [meals]);
 
   const today = () => new Date().toISOString().split("T")[0];
 
@@ -81,9 +90,7 @@ function App() {
     });
   };
 
-  /* ====================================================== */
-  /* MODALS */
-  /* ====================================================== */
+  /* ---------- MODALS ---------- */
   const [mealType, setMealType] = useState("");
   const [showApiModal, setShowApiModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
@@ -98,17 +105,13 @@ function App() {
     setShowManualModal(true);
   };
 
-  /* ====================================================== */
-  /* AUTH BACKGROUND – unchanged */
-  /* ====================================================== */
+  /* ---------- AUTH BACKGROUND ---------- */
   useEffect(() => {
     if (!isLoggedIn) document.body.classList.add("auth-page");
     else document.body.classList.remove("auth-page");
   }, [isLoggedIn]);
 
-  /* ====================================================== */
-  /* LOGIN MODE – unchanged */
-  /* ====================================================== */
+  /* ---------- LOGIN MODE ---------- */
   if (!isLoggedIn) {
     return showSignup ? (
       <Signup setShowSignup={setShowSignup} setIsLoggedIn={setIsLoggedIn} />
@@ -117,9 +120,6 @@ function App() {
     );
   }
 
-  /* ====================================================== */
-  /* APP */
-  /* ====================================================== */
   return (
     <div className="app-container">
       <Header setIsLoggedIn={setIsLoggedIn} />
@@ -180,4 +180,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

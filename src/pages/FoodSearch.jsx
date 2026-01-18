@@ -1,56 +1,42 @@
 // src/pages/FoodSearch.jsx
 import { useState } from "react";
 import FoodItem from "../components/FoodItem.jsx";
-import { useApi } from "../hooks/useApi";
 
 function FoodSearch() {
   const [query, setQuery] = useState("");
-  const [url, setUrl] = useState(null);
+  const [foods, setFoods] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // API handled ONLY by custom hook (Part 2 ✔️)
-  const { data, loading, error } = useApi(url);
-
-  const foods = data?.products || [];
-
-  const searchFood = () => {
+  const searchFood = async () => {
     if (!query.trim()) return;
+    setLoading(true);
 
-    const apiUrl =
-      "https://corsproxy.io/?" +
-      encodeURIComponent(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=10`
-      );
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=10`;
 
-    setUrl(apiUrl);
+    const res = await fetch(url);
+    const data = await res.json();
+
+    setFoods(data.products || []);
+    setLoading(false);
   };
 
   return (
-    <div className="page api-page">
+    <div>
       <h1>Food Search</h1>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search food..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button onClick={searchFood}>Search</button>
-      </div>
+      <input
+        type="text"
+        placeholder="Search food..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <button onClick={searchFood}>Search</button>
 
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!loading && url && foods.length === 0 && (
-        <p>No results found</p>
-      )}
-
-      <div className="food-results">
-        {foods.map((item) => (
-          <FoodItem
-            key={item.code}
-            item={item}
-          />
+      <div>
+        {foods.map((f) => (
+          <FoodItem key={f.code || Math.random()} item={f} />
         ))}
       </div>
     </div>

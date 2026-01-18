@@ -3,19 +3,9 @@
 import React, { useState } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
-
 import { useFavorites } from "../context/FavoritesContext.jsx";
 
-// ⭐ REDUX
-import { useSelector, useDispatch } from "react-redux";
-import { toggleMode } from "../redux/themeSlice";
-
 function HomePage({ openFoodSearch, openManualFood }) {
-
-  // ⭐ REDUX STATE
-  const mode = useSelector((state) => state.theme.mode);
-  const dispatch = useDispatch();
-
   const challengeProgress = 57;
 
   const challengeTasks = [
@@ -24,7 +14,6 @@ function HomePage({ openFoodSearch, openManualFood }) {
     { id: 3, text: "Eat 3 Healthy Meals", done: false },
   ];
 
-  // ⭐ CONTEXT
   const { favorites, removeFavorite } = useFavorites();
 
   const motivation =
@@ -62,21 +51,8 @@ function HomePage({ openFoodSearch, openManualFood }) {
   };
 
   return (
-    <div className={`home-full-bg ${mode}`}>
+    <div className="home-full-bg">
       <div className="dashboard">
-
-        {/* ====================================================== */}
-        {/* ⭐ REDUX THEME BUTTON – PART 4 */}
-        {/* ====================================================== */}
-        <div className="dashboard-card">
-          <h2>Theme</h2>
-          <button
-            onClick={() => dispatch(toggleMode())}
-            className="btn-green"
-          >
-            Switch to {mode === "dark" ? "Light" : "Dark"} Mode
-          </button>
-        </div>
 
         {/* ====================================================== */}
         {/* WEEKLY ACTIVITY */}
@@ -208,7 +184,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
         </div>
 
         {/* ====================================================== */}
-        {/* ⭐ FAVORITES – CONTEXT */}
+        {/* ⭐ FAVORITES – CONTEXT REQUIRED SECTION */}
         {/* ====================================================== */}
         <div className="dashboard-card">
           <h2>My Favorites</h2>
@@ -218,7 +194,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
           ) : (
             <ul>
               {favorites.map((f) => (
-                <li key={f.id}>
+                <li key={f.id} style={{ marginBottom: "8px" }}>
                   {f.name}
                   <button
                     style={{ marginLeft: "10px" }}
@@ -233,7 +209,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
         </div>
 
         {/* ====================================================== */}
-        {/* MODAL */}
+        {/* MODAL FOR ADDING FOOD */}
         {/* ====================================================== */}
         {chosenMeal && (
           <div className="modal-overlay">

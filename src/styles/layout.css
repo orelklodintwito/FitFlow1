@@ -58,39 +58,3 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* ============================= */
-/* THEME – REDUX (LIGHT / DARK) */
-/* ============================= */
-
-.page-wrapper.dark {
-  background-color: #0f0f0f;
-  color: #ffffff;
-}
-
-.page-wrapper.light {
-  background-color: #f5f5f5;
-  color: #111111;
-}
-
-/* Cards */
-.page-wrapper.light .recipe-card {
-  background-color: #ffffff;
-  color: #111111;
-}
-
-.page-wrapper.dark .recipe-card {
-  background-color: #1c1c1c;
-  color: #ffffff;
-}
-
-/* Buttons */
-.page-wrapper.light .recipe-btn {
-  background-color: #e0e0e0;
-  color: #111111;
-}
-
-.page-wrapper.dark .recipe-btn {
-  background-color: #2a2a2a;
-  color: #ffffff;
-}
