@@ -1,0 +1,90 @@
+/* ========================================================= */
+/* HEADER — Dark Glass Style Matching Cards */
+/* ========================================================= */
+
+.header {
+  background: rgba(30, 30, 30, 0.9); /* אותו צבע כמו הכרטיסיות */
+  backdrop-filter: blur(12px);       /* אפקט זכוכית */
+  padding: 1rem 2rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* ----------------------------- */
+/* LOGO */
+/* ----------------------------- */
+
+.logo {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #f5f5f5;
+}
+
+/* ----------------------------- */
+/* NAVIGATION */
+/* ----------------------------- */
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Main Pills */
+.nav-pill {
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Active page */
+.nav-pill.active {
+  background: var(--pastel-blue);
+  color: #041019;
+  border-color: var(--pastel-blue);
+}
+
+/* Logout (special red pill) */
+.logout-pill {
+  padding: 10px 18px;
+
+  background: #ff3b30;
+  border-radius: 30px;
+  border: none;
+
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.logout-pill:hover {
+  background: #d73229;
+}

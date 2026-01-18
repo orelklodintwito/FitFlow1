@@ -1,0 +1,1322 @@
+
+   /* ========================================================= */
+/* GLOBAL RESET */
+/* ========================================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background-color: #f2f4f7;
+  color: #1b4965;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ========================================================= */
+/* HEADER — Apple Style */
+/* ========================================================= */
+.header {
+  background: #ffffff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5ea;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #000;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Main Pills */
+.nav-pill {
+  padding: 10px 18px;
+  background: #f2f2f7;
+  border-radius: 30px;
+  border: 1px solid #e5e5ea;
+  color: #000;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;  /* prevents two-line text */
+}
+
+.nav-pill:hover {
+  background: #e5e5ea;
+}
+
+/* Active page */
+.nav-pill.active {
+  background: #007aff;
+  color: #fff;
+  border-color: #007aff;
+}
+
+/* Logout (special red pill) */
+.logout-pill {
+  padding: 10px 18px;
+  background: #ff3b30;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+  border: none;
+}
+
+.logout-pill:hover {
+  background: #d73229;
+}
+
+/* ========================================================= */
+/* MAIN CONTENT */
+/* ========================================================= */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ========================================================= */
+/* DASHBOARD LAYOUT */
+/* ========================================================= */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  padding: 10px 0;
+}
+.dashboard-filter {
+  width: 100%;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px;
+  border: 1px solid #e6f4f8;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transition: 0.25s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+}
+
+.wide-card {
+  grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+  .wide-card {
+    grid-column: span 1;
+  }
+
+  .summary-bmi-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-card h2 {
+  margin-bottom: 14px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.small-text {
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* ========================================================= */
+/* MEAL CIRCLES (ישן – בשביל דפים אחרים אם צריך) */
+/* ========================================================= */
+.meal-circles {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.circle {
+  background: #e3f9f2;
+  padding: 10px 16px;
+  border-radius: 20px;
+  color: #0b4f4a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.circle:hover {
+  background: #c4f4df;
+}
+
+.circle.filled {
+  background: #98e6b4;
+  color: #064b2d;
+}
+
+/* ========================================================= */
+/* FOOD ITEMS */
+/* ========================================================= */
+.food-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.food-item strong {
+  font-size: 15px;
+}
+
+.food-item .small-text {
+  font-size: 13px;
+  color: #666;
+}
+
+.remove-btn {
+  background: #ff4d4d;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background: #d93636;
+}
+
+/* ========================================================= */
+/* MODALS */
+/* ========================================================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.modal-box h2 {
+  margin-bottom: 18px;
+}
+
+.modal-box p {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.modal-close {
+  background: #ff5252;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  margin-top: 12px;
+}
+
+/* Inputs inside modal */
+.input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background: #fafafa;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4ea8de;
+  background: white;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 10px;
+  background: #4ea8de;
+  border: none;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background: #1b4965;
+}
+
+/* מודאל קטן לבחירת API / ידני */
+.modal-box.small {
+  width: 320px;
+  text-align: center;
+}
+
+
+/* ========================================================= */
+/* AUTH SCREENS */
+/* ========================================================= */
+.auth-bg {
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.auth-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1;
+}
+
+.auth-box {
+  position: relative;
+  z-index: 2;
+  width: 400px;
+  padding: 30px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.auth-form input,
+.auth-box h1,
+.auth-box p,
+.auth-link {
+  color: #222;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+  background: rgba(255,255,255,0.85);
+  font-size: 1rem;
+}
+
+.auth-form input::placeholder {
+  color: #333;
+  opacity: 0.6;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #1b4965;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #163a50;
+}
+
+.auth-link {
+  color: #1b4965;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.error-text {
+  color: #ff3b3b;
+  font-weight: 600;
+  margin-top: -5px;
+  margin-bottom: 8px;
+}
+
+.bmi-preview {
+  font-weight: 600;
+  color: #1b4965;
+  margin-bottom: 10px;
+}
+
+/* ========================================================= */
+/* API PAGE (RECIPES) */
+/* ========================================================= */
+.api-container {
+  padding: 20px;
+  text-align: center;
+  background-color: #ffffff;
+  color: #111;
+  min-height: 100vh;
+}
+
+.api-title {
+  font-size: 32px;
+  margin-bottom: 5px;
+  color: #111;
+}
+
+.api-subtitle {
+  color: #444;
+  margin-bottom: 25px;
+}
+
+.search-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.search-input {
+  width: 260px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #7EC4CF;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: #111;
+}
+
+.search-btn {
+  padding: 10px 18px;
+  background-color: #7EC4CF;
+  border: none;
+  color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.search-btn:hover {
+  background-color: #5aaab4;
+}
+
+.meals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  padding: 10px;
+}
+
+
+
+.meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.meal-img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.meal-title {
+  margin: 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+}
+
+.meal-info p {
+  margin: 4px 0;
+  color: #333;
+}
+
+.meal-btn {
+  display: block;
+  margin-top: 12px;
+  padding: 10px;
+  background-color: #7EC4CF;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.meal-btn:hover {
+  background-color: #5aaab4;
+}
+
+.no-results {
+  font-size: 20px;
+  margin-top: 40px;
+  color: #444;
+}
+
+/* ========================================================= */
+/* NEW DASHBOARD DESIGN – CHALLENGE, CALORIES, SUMMARY, BMI */
+/* ========================================================= */
+
+/* Weekly chart placeholder */
+.chart-placeholder {
+  width: 100%;
+  height: 180px;
+  background: #f3f7fa;
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #6b7a8c;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Challenge full-width block (row 2) */
+.challenge-full {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Inside challenge: left (graph) + right (tasks) */
+.challenge-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Graph area */
+.challenge-graph {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* Circular progress (challenge) */
+.circle-progress {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: conic-gradient(#007aff calc(var(--percent) * 1%), #e6eaf2 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #007aff;
+}
+
+/* Tasks area */
+.challenge-tasks {
+  flex: 1;
+}
+
+.challenge-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f6f7fb;
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #333;
+}
+
+.challenge-item.done {
+  background: #d9fbe5;
+  color: #067c46;
+  font-weight: 600;
+}
+
+/* Motivation */
+.motivation-text {
+  margin-top: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #1b4965;
+}
+
+/* ========================================================= */
+/* DAILY CALORIES (New Layout) */
+/* ========================================================= */
+
+.calories-card .big-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1b4965;
+  margin-bottom: 4px;
+}
+
+.left-number {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.calories-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.cal-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-right {
+  width: 40%;
+}
+
+/* Progress Bar */
+.cal-progress {
+  width: 100%;
+  height: 12px;
+  background: #e9eef5;
+  border-radius: 20px;
+  margin-bottom: 4px;
+}
+
+.cal-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: #4ea8de;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Meal buttons row */
+.meal-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.meal-btn {
+  flex: 1;
+  background: #dff5f4;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.meal-btn:hover {
+  background: #bfe9e7;
+}
+
+/* ========================================================= */
+/* SUMMARY + BMI ROW */
+/* ========================================================= */
+
+/* Summary + BMI row (row 4) */
+.summary-bmi-row {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 70% 30%;
+  gap: 22px;
+  align-items: stretch; /* forces equal height */
+}
+
+/* Summary vertical layout */
+.summary-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.summary-card p {
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #1b4965;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Make summary + BMI same height */
+.summary-card,
+.bmi-card {
+  height: 100%;
+}
+
+/* ========================================================= */
+/* BMI PERCENTILE GRAPH */
+/* ========================================================= */
+
+.bmi-progress-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.bmi-zones {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+}
+
+.bmi-line {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(
+    to right,
+    #ffd6d6 0% 18.5%,
+    #d6ffe6 18.5% 25%,
+    #fff1c2 25% 30%,
+    #ffc4c4 30% 100%
+  );
+  border-radius: 8px;
+}
+
+.bmi-marker {
+  position: absolute;
+  top: -5px;
+  width: 14px;
+  height: 14px;
+  background: #007aff;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.bmi-value {
+  font-size: 0.95rem;
+  text-align: center;
+  margin-top: 4px;
+}
+
+
+
+
+/* ========================================================= */
+/* MEAL ROW — FIXED CLEAN LAYOUT */
+/* ========================================================= */
+
+.meals-row {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Make all cards the same width */
+.meal-card {
+  width: 260px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #A8E6CF;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+/* Add button alignment inside card */
+.meal-actions {
+  margin-top: 12px;
+}
+
+/* Food items spacing */
+.food-item {
+  margin-top: 12px;
+}
+.meals-row {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 24px;
+}
+.meals-row {
+  grid-column: 1 / -1;  /* מרחיב את כל הרוחב */
+}
+.meal-card {
+  flex: 1;
+  min-width: 260px;
+  max-width: 300px;
+}
+
+/* ========================================================= */
+/* ADD MEAL BUTTON (BOTTOM) */
+/* ========================================================= */
+
+.add-meal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding-top: 0;
+}
+
+.floating-add-meal {
+  padding: 12px 30px;
+  border-radius: 999px;
+  border: none;
+  background: #1b4965;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.floating-add-meal:hover {
+  background: #123349;
+}
+
+
+/* ========================================================= */
+/* MEALS PAGE – FILTER BAR */
+/* ========================================================= */
+
+.dashboard-filter {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.dashboard-filter button {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  background: #174f6e;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-filter button.active {
+  background: #0d3144;
+}
+
+.date-picker {
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccd4dd;
+  font-size: 0.9rem;
+  background: white;
+}
+
+/* ========================================================= */
+/* MEALS ROW – 3 CARDS IN ONE ROW */
+/* ========================================================= */
+
+.meals-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  width: 100%;
+}
+
+/* ========================================================= */
+/* MEAL CARD */
+/* ========================================================= */
+
+.meal-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #A8E6CF;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.meal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+}
+
+.meal-actions {
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+.meal-add-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  background: #dff5f4;
+  color: #0b4f4a;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.meal-add-btn:hover {
+  background: #bfe9e7;
+}
+
+/* ========================================================= */
+/* ADD MEAL BUTTON */
+/* ========================================================= */
+
+.add-meal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  padding-top: 0;
+}
+
+.floating-add-meal {
+  padding: 12px 30px;
+  border-radius: 999px;
+  background: #1b4965;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.floating-add-meal:hover {
+  background: #123349;
+}
+.modal-close.bottom-close {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #ccc;
+  color: #222;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.modal-close.bottom-close:hover {
+  background: #b5b5b5;
+}
+.food-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  background: #ffd966;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #f1c232;
+}
+/* ----- MODAL OVERLAY ----- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* ----- MODAL BOX ----- */
+.modal-box.pretty {
+  width: 420px;
+  background: white;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.18);
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #133b5c;
+}
+
+/* ----- INPUTS ----- */
+.modal-inputs input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d0d7de;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+/* ----- BUTTONS ----- */
+.modal-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  border: none;
+}
+
+.modal-btn.primary {
+  background: #1b4965;
+  color: white;
+  font-weight: 600;
+}
+
+.modal-btn.primary:hover {
+  background: #123349;
+}
+
+.modal-btn.secondary {
+  background: #e5e5e5;
+  color: #333;
+}
+
+.modal-btn.secondary:hover {
+  background: #d4d4d4;
+}
+
+.modal-btn.small {
+  padding: 6px 10px;
+  width: auto;
+  font-size: 0.9rem;
+}
+
+/* ----- RESULTS ----- */
+.modal-results {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: 15px;
+}
+
+.food-result-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f9fb;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.food-result-card img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+/* ----- Animation ----- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* ----- UNIVERSAL MODAL STYLING ----- */
+.modal-box.pretty.small {
+  width: 380px !important;
+  padding: 30px;
+  border-radius: 20px;
+  background: #ffffff;
+  text-align: center;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #103a56;
+  margin-bottom: 10px;
+}
+
+.modal-sub {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+/* BUTTONS */
+.modal-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+/* BLUE PRIMARY */
+.modal-btn.primary {
+  background: #1b4965;
+  color: #fff;
+}
+
+.modal-btn.primary:hover {
+  background: #13384c;
+}
+
+/* LIGHT BLUE SECONDARY */
+.modal-btn.secondary-blue {
+  background: #4da8da;
+  color: white;
+}
+
+.modal-btn.secondary-blue:hover {
+  background: #4093bf;
+}
+
+/* RED CLOSE BUTTON */
+.modal-btn.danger {
+  background: #ff6b6b;
+  color: white;
+}
+
+.modal-btn.danger:hover {
+  background: #e85a5a;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modal-box.pretty {
+  width: 420px;
+  padding: 32px;
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #0a2b3e;
+}
+
+.input.large {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  border: 1px solid #d1d9e0;
+  font-size: 15px;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.modal-btn.primary {
+  background: #0d3c55;
+  color: white;
+}
+
+.modal-btn.secondary-blue {
+  background: #67b5f5;
+  color: white;
+}
+
+.modal-btn.secondary-blue.small {
+  padding: 10px;
+  font-size: 14px;
+}
+
+.modal-btn.danger {
+  background: #e2e2e2;
+  color: #333;
+}
+
+.results-grid {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.result-card {
+  padding: 14px;
+  border: 1px solid #dce3ea;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.result-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+/* ========================================================= */
+/* FIX: Pretty modal buttons – both dark blue */
+/* ========================================================= */
+
+.option-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #0d3c55;      /* 💙 הכחול הכהה */
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: 0.25s ease;
+}
+
+.option-btn:hover {
+  background: #0a2f44;      /* כהה יותר */
+}
+
+/* CLOSE stays gray */
+.modal-close {
+  background: #e2e2e2 !important;
+  color: #333 !important;
+}
+  /* HOMEPAGE BACKGROUND */
+.homepage-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* נותן אפקט יפה */
+  padding: 20px;
+  min-height: 100vh;
+}
+.home-background {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.btn-blue {
+  background-color: #4DB5FF;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-blue:hover {
+  background-color: #2a9fe8;
+}
+.btn-green {
+  background-color: #6EDC6E;
+  color: black;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-green:hover {
+  background-color: #55c855;
+}
+.btn-red {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.btn-red:hover {
+  background-color: #ff4b4b;
+}
