@@ -1,7 +1,7 @@
 // src/pages/FoodSearch.jsx
 import { useState } from "react";
-import FoodItem from "../components/FoodItem.jsx";
-import { useApi } from "../hooks/useApi";
+import FoodItem from "../client/components/FoodItem.jsx";
+import { useApi } from "../client/hooks/useApi";
 
 function FoodSearch() {
   const [query, setQuery] = useState("");

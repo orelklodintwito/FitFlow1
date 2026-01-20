@@ -7,8 +7,8 @@ import "../styles/components.css";
 import "../styles/layout.css";
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
-import { useApi } from "../hooks/useApi";
-import { toggleMode } from "../redux/themeSlice";
+import { useApi } from "../hooks/useApi.js";
+import { toggleMode } from "../redux/themeSlice.js";
 
 const ApiPage = () => {
   const [search, setSearch] = useState("salad");
