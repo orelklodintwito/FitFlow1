@@ -1,51 +1,65 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { updateMeal } from "../services/meals";
+import "../styles/modal.css";
 
-function EditFoodModal({ food, mealType, index, onSave, onClose }) {
+function EditFoodModal({ food, onClose, onSuccess }) {
   const [name, setName] = useState(food.name);
   const [calories, setCalories] = useState(food.calories);
-  const [protein, setProtein] = useState(food.protein);
+  const [protein, setProtein] = useState(food.protein || 0);
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
-    onSave(mealType, index, {
-      ...food,
-      name,
-      calories: Number(calories),
-      protein: Number(protein)
-    });
-    onClose();
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+
+      await updateMeal(food._id, {
+        name,
+        calories: Number(calories),
+        protein: Number(protein),
+      });
+
+      onSuccess(); // 🔄 ריענון מהשרת
+      onClose();
+    } catch (err) {
+      console.error("❌ Failed to update meal", err);
+      alert("Failed to update meal");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box elegant">
-
-        <div className="modal-header">
-          <h2>Edit Food</h2>
-          <button className="x-close" onClick={onClose}>✕</button>
-        </div>
+      <div className="modal-box small">
+        <h2>Edit Food</h2>
 
         <input
-          className="input"
-          type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          className="modal-input"
         />
 
         <input
-          className="input"
           type="number"
           value={calories}
           onChange={(e) => setCalories(e.target.value)}
+          className="modal-input"
         />
 
         <input
-          className="input"
           type="number"
           value={protein}
           onChange={(e) => setProtein(e.target.value)}
+          className="modal-input"
         />
 
-        <button className="save-btn" onClick={handleSave}>Save Changes</button>
+        <button onClick={handleSave} disabled={loading}>
+          {loading ? "Saving..." : "Save"}
+        </button>
+
+        <button className="gray" onClick={onClose}>
+          Cancel
+        </button>
       </div>
     </div>
   );

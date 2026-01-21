@@ -1,26 +1,40 @@
 // src/modals/ManualFoodModal.jsx
-import React, { useState } from "react";
+import { useState } from "react";
+import { addMeal } from "../services/meals";
 import "../styles/modal.css";
 
-function ManualFoodModal({ meal, onClose, onSave }) {
+function ManualFoodModal({ meal, onClose, onSuccess }) {
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!foodName || !calories) return;
-    onSave(meal, {
-      name: foodName,
-      calories: Number(calories),
-      protein: Number(protein || 0),
-    });
-    onClose();
+
+    try {
+      setLoading(true);
+
+      await addMeal({
+        name: foodName,
+        calories: Number(calories),
+        protein: Number(protein || 0),
+        mealType: meal,
+      });
+
+      onSuccess(); // 🔄 ריענון מהשרת
+      onClose();
+    } catch (err) {
+      console.error("❌ Failed to add meal", err);
+      alert("Failed to save meal");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-box small">
-
         <h2 className="modal-title">Add Food to {meal}</h2>
 
         <div className="modal-form">
@@ -49,15 +63,13 @@ function ManualFoodModal({ meal, onClose, onSave }) {
           />
         </div>
 
-        <button className="modal-btn" onClick={handleSubmit}>
-          Add
+        <button className="modal-btn" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Saving..." : "Add"}
         </button>
 
         <button className="modal-btn gray" onClick={onClose}>
           Close
         </button>
-
-
       </div>
     </div>
   );

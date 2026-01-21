@@ -2,8 +2,11 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-// ⭐ Custom Hook – REQUIRED (Part 1)
+// ⭐ Custom Hook – רק ללוגין
 import { useLocalStorage } from "./hooks/useLocalStorage";
+
+// ⭐ API
+import { getMeals, deleteMeal } from "./services/meals";
 
 import Header from "./components/Header.jsx";
 
@@ -34,51 +37,62 @@ import "./styles/api.css";
 
 function App() {
   /* ====================================================== */
-  /* LOGIN – Persisted via useLocalStorage (Part 1 ✔️) */
+  /* LOGIN – נשמר מקומית */
   /* ====================================================== */
   const [isLoggedIn, setIsLoggedIn] = useLocalStorage("isLoggedIn", false);
   const [showSignup, setShowSignup] = useState(false);
   const navigate = useNavigate();
 
   /* ====================================================== */
-  /* MEALS – Persisted via useLocalStorage (Part 1 ✔️) */
+  /* MEALS – מגיעים מהשרת */
   /* ====================================================== */
-  const [meals, setMeals] = useLocalStorage("meals", {
+  const [meals, setMeals] = useState({
     breakfast: [],
     lunch: [],
-    dinner: []
+    dinner: [],
   });
 
-  const today = () => new Date().toISOString().split("T")[0];
+  /* ====================================================== */
+  /* טעינת ארוחות מהשרת */
+  /* ====================================================== */
+  const reloadMealsFromServer = async () => {
+    try {
+      const res = await getMeals();
 
-  const addFoodManual = (mealType, food) => {
-    setMeals(prev => ({
-      ...prev,
-      [mealType]: [...prev[mealType], { ...food, date: today() }]
-    }));
+      const grouped = {
+        breakfast: [],
+        lunch: [],
+        dinner: [],
+      };
+
+      res.data.forEach((meal) => {
+        if (grouped[meal.mealType]) {
+          grouped[meal.mealType].push(meal);
+        }
+      });
+
+      setMeals(grouped);
+    } catch (err) {
+      console.error("❌ Failed to load meals", err);
+    }
   };
 
-  const addFoodFromApi = (mealType, foodObj) => {
-    setMeals(prev => ({
-      ...prev,
-      [mealType]: [...prev[mealType], { ...foodObj, date: today() }]
-    }));
-  };
+  useEffect(() => {
+    if (isLoggedIn) {
+      reloadMealsFromServer();
+    }
+  }, [isLoggedIn]);
 
-  const removeFood = (mealType, index) => {
-    setMeals(prev => {
-      const updated = [...prev[mealType]];
-      updated.splice(index, 1);
-      return { ...prev, [mealType]: updated };
-    });
-  };
-
-  const editFood = (mealType, index, newFood) => {
-    setMeals(prev => {
-      const updated = [...prev[mealType]];
-      updated[index] = newFood;
-      return { ...prev, [mealType]: updated };
-    });
+  /* ====================================================== */
+  /* DELETE MEAL – מחיקה אמיתית */
+  /* ====================================================== */
+  const handleDeleteMeal = async (id) => {
+    try {
+      await deleteMeal(id);
+      reloadMealsFromServer();
+    } catch (err) {
+      console.error("❌ Failed to delete meal", err);
+    }
   };
 
   /* ====================================================== */
@@ -88,18 +102,18 @@ function App() {
   const [showApiModal, setShowApiModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
 
-  const openFoodSearch = meal => {
+  const openFoodSearch = (meal) => {
     setMealType(meal);
     setShowApiModal(true);
   };
 
-  const openManualFood = meal => {
+  const openManualFood = (meal) => {
     setMealType(meal);
     setShowManualModal(true);
   };
 
   /* ====================================================== */
-  /* AUTH BACKGROUND – unchanged */
+  /* AUTH BACKGROUND */
   /* ====================================================== */
   useEffect(() => {
     if (!isLoggedIn) document.body.classList.add("auth-page");
@@ -107,7 +121,7 @@ function App() {
   }, [isLoggedIn]);
 
   /* ====================================================== */
-  /* LOGIN MODE – unchanged */
+  /* LOGIN MODE */
   /* ====================================================== */
   if (!isLoggedIn) {
     return showSignup ? (
@@ -142,10 +156,9 @@ function App() {
             element={
               <MealsPage
                 meals={meals}
-                removeFood={removeFood}
                 openFoodSearch={openFoodSearch}
                 openManualFood={openManualFood}
-                onEditFood={editFood}
+                onDelete={handleDeleteMeal} // 🔥 מחיקה מחוברת
               />
             }
           />
@@ -153,7 +166,6 @@ function App() {
           <Route path="/api" element={<ApiPage />} />
           <Route path="/settings" element={<SettingsPage />} />
 
-          {/* ✅ 404 – REQUIRED */}
           <Route
             path="*"
             element={<NotFound goHome={() => navigate("/")} />}
@@ -161,19 +173,21 @@ function App() {
         </Routes>
       </main>
 
+      {/* ===== API MODAL ===== */}
       {showApiModal && (
         <FoodSearchModal
           meal={mealType}
           onClose={() => setShowApiModal(false)}
-          onAddFood={addFoodFromApi}
+          onSuccess={reloadMealsFromServer}
         />
       )}
 
+      {/* ===== MANUAL MODAL ===== */}
       {showManualModal && (
         <ManualFoodModal
           meal={mealType}
           onClose={() => setShowManualModal(false)}
-          onSave={addFoodManual}
+          onSuccess={reloadMealsFromServer}
         />
       )}
     </div>

@@ -1,5 +1,4 @@
 // src/pages/HomePage.jsx
-
 import React, { useState } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
@@ -10,12 +9,37 @@ import { useFavorites } from "../context/FavoritesContext.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMode } from "../redux/themeSlice";
 
-function HomePage({ openFoodSearch, openManualFood }) {
+function HomePage({ meals, openFoodSearch, openManualFood }) {
 
   // ⭐ REDUX STATE
   const mode = useSelector((state) => state.theme.mode);
   const dispatch = useDispatch();
 
+  /* ============================== */
+  /* CALCULATIONS FROM SERVER DATA */
+  /* ============================== */
+  const allMeals = Object.values(meals || {}).flat();
+
+  const totalCalories = allMeals.reduce(
+    (sum, meal) => sum + Number(meal.calories || 0),
+    0
+  );
+
+  const totalProtein = allMeals.reduce(
+    (sum, meal) => sum + Number(meal.protein || 0),
+    0
+  );
+
+  const dailyGoal = 2000;
+  const caloriesLeft = Math.max(dailyGoal - totalCalories, 0);
+  const progressPercent = Math.min(
+    100,
+    Math.round((totalCalories / dailyGoal) * 100)
+  );
+
+  /* ============================== */
+  /* CHALLENGE (STATIC – OK) */
+  /* ============================== */
   const challengeProgress = 57;
 
   const challengeTasks = [
@@ -33,7 +57,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
       : "You're almost there! Keep pushing 🚀";
 
   /* ============================== */
-  /* BMI DATA */
+  /* BMI DATA (STATIC – OK) */
   /* ============================== */
   const bmi = 21.7;
   const bmiMin = 15;
@@ -65,9 +89,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
     <div className={`home-full-bg ${mode}`}>
       <div className="dashboard">
 
-        {/* ====================================================== */}
-        {/* ⭐ REDUX THEME BUTTON – PART 4 */}
-        {/* ====================================================== */}
+        {/* ================= THEME ================= */}
         <div className="dashboard-card">
           <h2>Theme</h2>
           <button
@@ -78,9 +100,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
           </button>
         </div>
 
-        {/* ====================================================== */}
-        {/* WEEKLY ACTIVITY */}
-        {/* ====================================================== */}
+        {/* ================= WEEKLY ACTIVITY ================= */}
         <div className="dashboard-card">
           <h2>Weekly Activity</h2>
 
@@ -102,9 +122,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
           </div>
         </div>
 
-        {/* ====================================================== */}
-        {/* CHALLENGE */}
-        {/* ====================================================== */}
+        {/* ================= CHALLENGE ================= */}
         <div className="dashboard-card">
           <h2>Challenge</h2>
 
@@ -133,21 +151,27 @@ function HomePage({ openFoodSearch, openManualFood }) {
           <p className="motivation-text">{motivation}</p>
         </div>
 
-        {/* ====================================================== */}
-        {/* DAILY CALORIES */}
-        {/* ====================================================== */}
+        {/* ================= DAILY CALORIES ================= */}
         <div className="dashboard-card calories-card">
           <h2>Daily Calories</h2>
 
           <div className="calories-header">
             <div className="cal-left">
-              <p className="big-number">1200 Left</p>
-              <p className="left-number">Consumed: 800 kcal</p>
+              <p className="big-number">{caloriesLeft} Left</p>
+              <p className="left-number">
+                Consumed: {totalCalories} kcal
+              </p>
+              <p className="small-text">
+                Protein: {totalProtein} g
+              </p>
             </div>
 
             <div className="cal-right">
               <div className="cal-progress">
-                <div className="cal-fill" style={{ width: "40%" }}></div>
+                <div
+                  className="cal-fill"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
               </div>
             </div>
           </div>
@@ -174,15 +198,13 @@ function HomePage({ openFoodSearch, openManualFood }) {
           </div>
         </div>
 
-        {/* ====================================================== */}
-        {/* SUMMARY + BMI */}
-        {/* ====================================================== */}
+        {/* ================= SUMMARY + BMI ================= */}
         <div className="summary-bmi-row">
           <div className="dashboard-card summary-card">
             <h2>Today's Summary</h2>
-            <p>✔ Drank 2L Water</p>
-            <p>✔ Ate 3 Healthy Meals</p>
-            <p>✔ Completed Steps Goal</p>
+            <p>🍽 Meals logged: {allMeals.length}</p>
+            <p>🔥 Calories consumed: {totalCalories}</p>
+            <p>🥩 Protein: {totalProtein} g</p>
           </div>
 
           <div className="dashboard-card bmi-card">
@@ -207,9 +229,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
           </div>
         </div>
 
-        {/* ====================================================== */}
-        {/* ⭐ FAVORITES – CONTEXT */}
-        {/* ====================================================== */}
+        {/* ================= FAVORITES ================= */}
         <div className="dashboard-card">
           <h2>My Favorites</h2>
 
@@ -232,9 +252,7 @@ function HomePage({ openFoodSearch, openManualFood }) {
           )}
         </div>
 
-        {/* ====================================================== */}
-        {/* MODAL */}
-        {/* ====================================================== */}
+        {/* ================= MODAL ================= */}
         {chosenMeal && (
           <div className="modal-overlay">
             <div className="modal-box small">

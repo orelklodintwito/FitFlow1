@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors"); // ✅ נוסף
 
 const mealsRoutes = require("./routes/meals");
 const authRoutes = require("./routes/auth");
@@ -11,6 +12,12 @@ const app = express();
 
 /* ===================== MIDDLEWARE ===================== */
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 /* ===================== DATABASE ===================== */
 mongoose
@@ -32,14 +39,11 @@ app.use("/api/meals", mealsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/external", externalApiRoutes);
 
-
 /* ===================== ERROR HANDLING ===================== */
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({

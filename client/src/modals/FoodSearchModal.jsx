@@ -1,12 +1,13 @@
-// src/modals/FoodSearchModal.jsx
 import { useState } from "react";
 import "../styles/modal.css";
 import { useApi } from "../hooks/useApi";
 import FoodItem from "../components/FoodItem.jsx";
+import { addMeal } from "../services/meals";
 
-function FoodSearchModal({ meal, onAddFood, onClose }) {
+function FoodSearchModal({ meal, onClose, onSuccess }) {
   const [query, setQuery] = useState("");
   const [url, setUrl] = useState(null);
+  const [loadingAdd, setLoadingAdd] = useState(false);
 
   const { data, loading, error } = useApi(url);
   const foods = data?.products || [];
@@ -21,6 +22,27 @@ function FoodSearchModal({ meal, onAddFood, onClose }) {
       );
 
     setUrl(apiUrl);
+  };
+
+  const handleAddFood = async (item) => {
+    try {
+      setLoadingAdd(true);
+
+      await addMeal({
+        name: item.product_name || "Unknown",
+        calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
+        protein: item.nutriments?.proteins_100g ?? 0,
+        mealType: meal,
+      });
+
+      onSuccess(); // 🔄 ריענון מהשרת
+      onClose();
+    } catch (err) {
+      console.error("❌ Failed to add food from API", err);
+      alert("Failed to add food");
+    } finally {
+      setLoadingAdd(false);
+    }
   };
 
   return (
@@ -51,16 +73,8 @@ function FoodSearchModal({ meal, onAddFood, onClose }) {
             <FoodItem
               key={item.code}
               item={item}
-              onAdd={() => {
-                onAddFood(meal, {
-                  name: item.product_name || "Unknown",
-                  calories:
-                    item.nutriments?.["energy-kcal_100g"] ?? 0,
-                  protein:
-                    item.nutriments?.proteins_100g ?? 0,
-                });
-                onClose();
-              }}
+              onAdd={() => handleAddFood(item)}
+              disabled={loadingAdd}
             />
           ))}
         </div>
