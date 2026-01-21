@@ -22,7 +22,7 @@ const ApiPage = () => {
   const dispatch = useDispatch();
 
   // ⭐ CUSTOM HOOK – API
-  const url = `https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`;
+  const url = `http://YOUR_SERVER_URL/api/external/meals?search=${query}`;
   const { data, loading, error } = useApi(url);
 
   const meals = data?.meals || [];
