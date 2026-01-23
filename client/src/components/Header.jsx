@@ -1,9 +1,6 @@
 // src/components/Header.jsx
 import { NavLink } from "react-router-dom";
 import "../styles/header.css";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleMode } from "../redux/themeSlice";
-
 
 function Header({ setIsLoggedIn }) {
   return (
@@ -13,52 +10,51 @@ function Header({ setIsLoggedIn }) {
       <nav className="nav">
         <NavLink
           to="/"
-          className={({ isActive }) =>
-            `nav-pill ${isActive ? "active" : ""}`
-          }
+          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
           Home
         </NavLink>
 
         <NavLink
           to="/form"
-          className={({ isActive }) =>
-            `nav-pill ${isActive ? "active" : ""}`
-          }
+          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
           Meals
         </NavLink>
 
         <NavLink
           to="/api"
-          className={({ isActive }) =>
-            `nav-pill ${isActive ? "active" : ""}`
-          }
+          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
           Recipes
         </NavLink>
 
         <NavLink
           to="/settings"
-          className={({ isActive }) =>
-            `nav-pill ${isActive ? "active" : ""}`
-          }
+          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
           Profile
         </NavLink>
 
-        <button
-          className="logout-pill"
-          onClick={() => {
-            localStorage.removeItem("isLoggedIn");
-            setIsLoggedIn(false);
-          }}
+        <NavLink
+          to="/challenge"
+          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
-          Logout
-        </button>
+          Challenge
+        </NavLink>
       </nav>
+
+      <button
+        className="logout-pill"
+        onClick={() => {
+          localStorage.removeItem("isLoggedIn");
+          setIsLoggedIn(false);
+        }}
+      >
+        Logout
+      </button>
     </header>
   );
 }
 
-export default Header; 
+export default Header;

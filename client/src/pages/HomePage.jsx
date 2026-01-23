@@ -1,22 +1,24 @@
 // src/pages/HomePage.jsx
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
+import { getChallenge } from "../services/challenge";
 
 // ⭐ REDUX
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMode } from "../redux/themeSlice";
 
 function HomePage({ meals, openFoodSearch, openManualFood }) {
-
-  // ⭐ REDUX STATE
+  /* ============================== */
+  /* REDUX */
+  /* ============================== */
   const mode = useSelector((state) => state.theme.mode);
   const dispatch = useDispatch();
 
   /* ============================== */
-  /* CALCULATIONS FROM SERVER DATA */
+  /* MEALS CALCULATIONS (FROM SERVER) */
   /* ============================== */
   const allMeals = Object.values(meals || {}).flat();
 
@@ -38,26 +40,34 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   );
 
   /* ============================== */
-  /* CHALLENGE (STATIC – OK) */
+  /* CHALLENGE – FROM SERVER */
   /* ============================== */
-  const challengeProgress = 57;
+  const [challenge, setChallenge] = useState(null);
 
-  const challengeTasks = [
-    { id: 1, text: "Drink 2L Water", done: true },
-    { id: 2, text: "10,000 Steps", done: false },
-    { id: 3, text: "Eat 3 Healthy Meals", done: false },
-  ];
+  useEffect(() => {
+    getChallenge()
+      .then((res) => setChallenge(res.data))
+      .catch(() => setChallenge(null));
+  }, []);
 
-  // ⭐ CONTEXT
+  const hasChallenge = challenge && challenge.goals;
+  const isWeekly = hasChallenge && challenge.trackingMode === "weekly";
+
+  const challengeTitle = !hasChallenge
+    ? "No Active Challenge"
+    : isWeekly
+    ? "Weekly Challenge"
+    : "Daily Challenge";
+
+
+
+  /* ============================== */
+  /* FAVORITES */
+  /* ============================== */
   const { favorites, removeFavorite } = useFavorites();
 
-  const motivation =
-    challengeProgress < 50
-      ? "Don't give up! You can do this 💪"
-      : "You're almost there! Keep pushing 🚀";
-
   /* ============================== */
-  /* BMI DATA (STATIC – OK) */
+  /* BMI (STATIC FOR NOW) */
   /* ============================== */
   const bmi = 21.7;
   const bmiMin = 15;
@@ -72,17 +82,14 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   /* ============================== */
   const [chosenMeal, setChosenMeal] = useState(null);
 
-  const openCalorieModal = (meal) => setChosenMeal(meal);
-  const closeCalorieModal = () => setChosenMeal(null);
-
   const handleManualAdd = () => {
     openManualFood(chosenMeal);
-    closeCalorieModal();
+    setChosenMeal(null);
   };
 
   const handleApiAdd = () => {
     openFoodSearch(chosenMeal);
-    closeCalorieModal();
+    setChosenMeal(null);
   };
 
   return (
@@ -100,55 +107,31 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
           </button>
         </div>
 
-        {/* ================= WEEKLY ACTIVITY ================= */}
-        <div className="dashboard-card">
-          <h2>Weekly Activity</h2>
-
-          <div className="weekly-activity-chart">
-            {["M", "T", "W", "T", "F", "S", "S"].map((day, i) => {
-              const height = [50, 90, 120, 30, 140, 100, 70][i];
-              return (
-                <div key={i} className="week-bar">
-                  <div className="week-bar-inner">
-                    <div
-                      className="week-bar-fill"
-                      style={{ height: `${height}px` }}
-                    ></div>
-                  </div>
-                  <span className="week-bar-label">{day}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* ================= CHALLENGE ================= */}
         <div className="dashboard-card">
-          <h2>Challenge</h2>
+          <h2>{challengeTitle}</h2>
 
-          <div className="challenge-flex">
-            <div className="challenge-graph">
-              <div
-                className="circle-progress"
-                style={{ "--percent": challengeProgress }}
-              >
-                <span className="circle-number">{challengeProgress}%</span>
-              </div>
-            </div>
+          {!challenge ? (
+            <p className="small-text">No active challenge</p>
+          ) : (
+            <>
+              <p className="small-text">
+                🏃 Steps goal: {challenge.goals?.steps ?? "-"}
+              </p>
+              <p className="small-text">
+                💧 Water goal: {challenge.goals?.water ?? "-"} L
+              </p>
+              <p className="small-text">
+                🏋️ Workouts goal: {challenge.goals?.workouts ?? "-"}
+              </p>
 
-            <div className="challenge-tasks">
-              {challengeTasks.map((t) => (
-                <div
-                  key={t.id}
-                  className={`challenge-item ${t.done ? "done" : ""}`}
-                >
-                  {t.text}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p className="motivation-text">{motivation}</p>
+              <p className="motivation-text">
+                {isWeekly
+                  ? "Stay consistent all week 💪"
+                  : "One step at a time today 🚀"}
+              </p>
+            </>
+          )}
         </div>
 
         {/* ================= DAILY CALORIES ================= */}
@@ -179,19 +162,19 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
           <div className="meal-row">
             <button
               className="btn-green"
-              onClick={() => openCalorieModal("breakfast")}
+              onClick={() => setChosenMeal("breakfast")}
             >
               Breakfast
             </button>
             <button
               className="btn-green"
-              onClick={() => openCalorieModal("lunch")}
+              onClick={() => setChosenMeal("lunch")}
             >
               Lunch
             </button>
             <button
               className="btn-green"
-              onClick={() => openCalorieModal("dinner")}
+              onClick={() => setChosenMeal("dinner")}
             >
               Dinner
             </button>
@@ -267,7 +250,10 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
                 Add via API
               </button>
 
-              <button className="bottom-close" onClick={closeCalorieModal}>
+              <button
+                className="bottom-close"
+                onClick={() => setChosenMeal(null)}
+              >
                 Close
               </button>
             </div>

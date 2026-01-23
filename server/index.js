@@ -7,6 +7,7 @@ const mealsRoutes = require("./routes/meals");
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const externalApiRoutes = require("./routes/externalApi");
+const challengeRoutes = require("./routes/challenges");
 
 const app = express();
 
@@ -38,6 +39,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/meals", mealsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/external", externalApiRoutes);
+app.use("/api/challenge", challengeRoutes);
+
 
 /* ===================== ERROR HANDLING ===================== */
 app.use((req, res) => {

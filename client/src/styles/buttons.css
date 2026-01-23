@@ -93,3 +93,29 @@ button {
 .btn-red:hover {
   filter: brightness(0.9);
 }
+/* ============================= */
+/* Challenge Buttons */
+/* ============================= */
+
+.challenge-btn {
+  background: linear-gradient(145deg, #8f8f8f, #777777);
+  color: #111;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 14px;
+  transition: all 0.25s ease;
+}
+
+.challenge-btn:hover {
+  background: linear-gradient(145deg, #a1a1a1, #8a8a8a);
+  transform: translateY(-2px);
+}
+
+.challenge-btn.active {
+  background: linear-gradient(145deg, #cfcfcf, #b5b5b5);
+}

@@ -9,6 +9,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import { getMeals, deleteMeal } from "./services/meals";
 
 import Header from "./components/Header.jsx";
+import ChallengePage from "./pages/ChallengePage.jsx";
 
 import HomePage from "./pages/HomePage.jsx";
 import MealsPage from "./pages/MealsPage.jsx";
@@ -165,6 +166,7 @@ function App() {
 
           <Route path="/api" element={<ApiPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/challenge" element={<ChallengePage />} />
 
           <Route
             path="*"

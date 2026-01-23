@@ -88,3 +88,37 @@
 .logout-pill:hover {
   background: #d73229;
 }
+/* ----------------------------- */
+/* CHALLENGE TOGGLE (Today / Week) */
+/* ----------------------------- */
+
+.challenge-toggle {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;   /* דוחף אותו לימין */
+  margin-right: 12px;  /* מרווח לפני Logout */
+}
+
+.challenge-toggle button {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+
+  color: #f5f5f5;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.challenge-toggle button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.challenge-toggle button.active {
+  background: var(--pastel-blue);
+  color: #041019;
+  border-color: var(--pastel-blue);
+}
