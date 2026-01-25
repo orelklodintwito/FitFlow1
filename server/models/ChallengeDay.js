@@ -29,6 +29,11 @@ const challengeDaySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    steps: {
+  type: Number,
+  default: 0,
+},
+
 
     workouts: [
       {
@@ -58,6 +63,10 @@ const challengeDaySchema = new mongoose.Schema(
       default: false,
     },
     waterCompleted: {
+  type: Boolean,
+  default: false,
+},
+stepsCompleted: {
   type: Boolean,
   default: false,
 },

@@ -63,15 +63,17 @@ router.post("/", auth, async (req, res) => {
     }
 
     const rules =
-      challenge.type === "custom"
-        ? {
-            waterLiters: challenge.goals?.water,
-            readingPages: challenge.goals?.reading,
-            workouts: challenge.goals?.workouts
-              ? { minMinutes: 1 }
-              : null,
-          }
-        : CHALLENGE_RULES[challenge.type];
+  challenge.type === "custom"
+    ? {
+        waterLiters: challenge.goals?.water,
+        readingPages: challenge.goals?.reading,
+        steps: challenge.goals?.steps, // ✅ NEW
+        workouts: challenge.goals?.workouts
+          ? { minMinutes: 1 }
+          : null,
+      }
+    : CHALLENGE_RULES[challenge.type];
+
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -94,6 +96,10 @@ router.post("/", auth, async (req, res) => {
       day.readingPages = req.body.readingPages;
     }
 
+    if (typeof req.body.steps === "number") {
+  day.steps = req.body.steps;
+}
+
     /* ---------- WATER ---------- */
     if (typeof rules.waterLiters === "number") {
       day.waterCompleted =
@@ -111,6 +117,15 @@ router.post("/", auth, async (req, res) => {
     } else {
       day.readingCompleted = true;
     }
+
+    /* ---------- STEPS ---------- */
+if (typeof rules.steps === "number") {
+  day.stepsCompleted =
+    typeof day.steps === "number" &&
+    day.steps >= rules.steps;
+} else {
+  day.stepsCompleted = true;
+}
 
     /* ---------- WORKOUT ---------- */
     if (rules.workouts?.minMinutes) {
@@ -131,8 +146,10 @@ router.post("/", auth, async (req, res) => {
 day.completed =
   day.waterCompleted &&
   day.readingCompleted &&
+  day.stepsCompleted &&   // ✅ NEW
   day.workoutsCompleted &&
   day.nutritionCompleted;
+
 
 day.failed = false;
 

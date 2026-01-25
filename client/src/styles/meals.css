@@ -196,3 +196,12 @@
 .dashboard {
   padding-top: 40px;
 }
+/* Hide Week & Month – keep only Today */
+.meals-filter button:not(.active) {
+  display: none;
+}
+
+/* Hide Meals filter completely (Today / Week / Month) */
+.meals-filter {
+  display: none;
+}

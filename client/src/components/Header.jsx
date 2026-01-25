@@ -1,7 +1,12 @@
 import { NavLink } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleMode } from "../redux/themeSlice";
 import "../styles/header.css";
 
 function Header({ setIsLoggedIn }) {
+  const mode = useSelector((state) => state.theme.mode);
+  const dispatch = useDispatch();
+
   return (
     <header className="header">
       {/* Logo = Home */}
@@ -24,7 +29,6 @@ function Header({ setIsLoggedIn }) {
           Recipes
         </NavLink>
 
-        {/* ✅ PROFILE – תוקן מ־/settings ל־/profile */}
         <NavLink
           to="/profile"
           className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
@@ -40,14 +44,16 @@ function Header({ setIsLoggedIn }) {
         </NavLink>
       </nav>
 
+      {/* 🌙 / ☀️ Theme Toggle */}
       <button
-        className="logout-pill"
-        onClick={() => {
-          localStorage.removeItem("isLoggedIn");
-          setIsLoggedIn(false);
-        }}
+        className="theme-toggle"
+        onClick={() => dispatch(toggleMode())}
+        aria-label="Toggle theme"
+        title={
+          mode === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"
+        }
       >
-        Logout
+        {mode === "dark" ? "☀️" : "🌙"}
       </button>
     </header>
   );

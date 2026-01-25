@@ -382,3 +382,90 @@ transform: translate(-50%, -50%);
   margin-bottom: 24px;
   text-align: center;
 }
+/* =============================== */
+/* Dashboard Cards – LEFT ALIGN */
+/* =============================== */
+
+.dashboard-card {
+  text-align: left;
+}
+
+/* טקסטים פנימיים */
+.dashboard-card h2,
+.dashboard-card p,
+.dashboard-card span,
+.dashboard-card strong {
+  text-align: left;
+}
+
+/* ביטול יישור מרכזי מ-flex אם קיים */
+.dashboard-card {
+  align-items: flex-start;
+}
+.challenge-card-content {
+  display: flex;
+  align-items: center;        /* מרכז לגובה */
+  justify-content: space-between;
+}
+
+.challenge-text {
+  flex: 1;
+}
+
+/* כפתור View Challenge */
+.view-challenge-btn {
+  width: 160px;               /* רוחב קבוע */
+  height: 44px;               /* גובה קבוע */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 16px;          /* רווח מהטקסט */
+  font-weight: 600;
+}
+.challenge-card-content {
+  display: flex;
+  align-items: center;        /* 🔥 זה המרכז לגובה */
+  justify-content: space-between;
+  min-height: 70px;           /* מונע שקיעה למטה */
+}
+
+.challenge-text {
+  flex: 1;
+}
+
+/* כפתור View Challenge */
+.view-challenge-btn {
+  width: 160px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* 🌙 / ☀️ Theme Toggle */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}

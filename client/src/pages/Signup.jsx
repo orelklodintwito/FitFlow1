@@ -1,5 +1,7 @@
+// src/pages/Signup.jsx
 import { useState } from "react";
 import bgImage from "../assets/images/login_bg.png";
+import { signup } from "../services/auth"; // ✅ חובה
 
 function Signup({ setShowSignup, setIsLoggedIn }) {
   const [name, setName] = useState("");
@@ -8,50 +10,70 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
 
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState(""); // ⬅️ בס"מ
+  const [height, setHeight] = useState(""); // cm
 
   const [error, setError] = useState("");
 
-  // BMI מחושב נכון: kg / (m²)
   const bmi =
     weight && height
       ? weight / Math.pow(height / 100, 2)
       : null;
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (name.length < 3) return setError("Name must be at least 3 characters.");
     if (!email.includes("@")) return setError("Enter a valid email.");
     if (password.length < 4)
       return setError("Password must be at least 4 characters.");
-
     if (!age || age < 5 || age > 120)
       return setError("Please enter a valid age.");
-
     if (!weight || !height)
       return setError("Please enter weight & height.");
 
-    /* ✅ מקור האמת – נוצר כאן */
-    localStorage.setItem(
-      "userMetrics",
-      JSON.stringify({
-        height: Number(height), // cm
-        weight: Number(weight), // kg
-      })
-    );
-
-    /* (אופציונלי) שמירת פרטי משתמש בסיסיים */
-    localStorage.setItem(
-      "userProfile",
-      JSON.stringify({
+    try {
+      // 🔗 קריאה לשרת (כמו Login)
+      const data = await signup({
         name,
         email,
+        password,
         age: Number(age),
-      })
-    );
+        weight: Number(weight),
+        height: Number(height),
+      });
 
-    setIsLoggedIn(true);
+      // 🔐 שמירת token
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      // 💾 שמירת נתוני גוף (ל־Profile / BMI)
+      localStorage.setItem(
+        "userMetrics",
+        JSON.stringify({
+          height: Number(height),
+          weight: Number(weight),
+        })
+      );
+
+      // (אופציונלי) פרטי משתמש בסיסיים
+      localStorage.setItem(
+        "userProfile",
+        JSON.stringify({
+          name,
+          email,
+          age: Number(age),
+        })
+      );
+
+      setIsLoggedIn(true);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Signup failed. Please try again."
+      );
+    }
   };
 
   return (
@@ -102,12 +124,7 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
             onChange={(e) => setHeight(e.target.value)}
           />
 
-          {bmi && (
-            <p className="bmi-preview">
-              BMI: {bmi.toFixed(1)}
-            </p>
-          )}
-
+          {bmi && <p className="bmi-preview">BMI: {bmi.toFixed(1)}</p>}
           {error && <p className="error-text">{error}</p>}
 
           <button type="submit">Create Account</button>

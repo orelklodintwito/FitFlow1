@@ -43,6 +43,7 @@ const [editingWorkout, setEditingWorkout] = useState(null);
   // daily inputs
   const [dayWater, setDayWater] = useState("");
   const [dayReading, setDayReading] = useState("");
+const [daySteps, setDaySteps] = useState("");
 
   // ui
   const [savingDay, setSavingDay] = useState(false);
@@ -83,9 +84,16 @@ const totalDays =
         setDayReading(
           res.data.readingPages != null ? String(res.data.readingPages) : ""
         );
+        setDaySteps(
+  res.data.steps != null ? String(res.data.steps) : ""
+);
+
+
       } else {
         setDayWater("");
         setDayReading("");
+        setDaySteps("");
+
       }
        await loadWorkouts();
     } catch {
@@ -194,6 +202,7 @@ const autoSaveDay = async (payload) => {
 const res = await saveChallengeDay({
   waterLiters: dayWater === "" ? undefined : Number(dayWater),
   readingPages: dayReading === "" ? undefined : Number(dayReading),
+  steps: daySteps === "" ? undefined : Number(daySteps), // ✅
 });
 
 
@@ -270,10 +279,15 @@ const taskStatus = [
     done: today?.readingCompleted,
   },
   {
+    enabled: typeof rules?.steps === "number",   // ✅
+    done: today?.stepsCompleted,
+  },
+  {
     enabled: !!rules?.workouts,
     done: today?.workoutsCompleted,
   },
 ];
+
 
 const enabledTasks = taskStatus.filter(t => t.enabled);
 const completedTasks = enabledTasks.filter(t => t.done).length;
@@ -420,7 +434,6 @@ const handleRestartChallenge = () => {
   </div>
 </div>
 
-
           <div className="days-strip">
   {Array.from({ length: totalDays || 0 }).map((_, i) => {
     const dayNum = i + 1;
@@ -490,37 +503,113 @@ const handleRestartChallenge = () => {
               <div className="dashboard-card">
                 <b>Today</b>
 
-                <div className="challenge-tiles">
-<div className="challenge-tile">
-  <b>🥗 Nutrition</b>
+            
 
-  <NutritionDonut
-    consumedCalories={totalCalories}
-    targetCalories={calorieGoal}
-    protein={allMeals.reduce(
-      (sum, m) => sum + Number(m.protein || 0),
-      0
+<div className="challenge-tiles grid-2">
+  {/* 🥗 Nutrition – רוחב כפול */}
+  <div className="challenge-tile wide">
+    <div className="tile-header">
+      <b>🥗 Nutrition</b>
+   <span
+  className="nutrition-view"
+  onClick={() => navigate("/form")}
+>
+  View →
+</span>
+
+
+    </div>
+
+    <NutritionDonut
+      consumedCalories={totalCalories}
+      targetCalories={calorieGoal}
+      protein={allMeals.reduce(
+        (sum, m) => sum + Number(m.protein || 0),
+        0
+      )}
+    />
+  </div>
+
+  {/* 📖 Reading */}
+  <div className="challenge-tile challenge-tile-fixed">
+    <b>📖 Reading</b>
+    <div className="challenge-tile-content">
+      <input
+        className="challenge-input"
+        type="number"
+        value={dayReading}
+        onChange={(e) => {
+          const val = e.target.value;
+          setDayReading(val);
+          autoSaveDay({
+            readingPages: val === "" ? undefined : Number(val),
+          });
+        }}
+      />
+    </div>
+  </div>
+
+  {/* 💧 Water */}
+  <div className="challenge-tile challenge-tile-fixed">
+    <b>💧 Water</b>
+    <div className="challenge-tile-content">
+      <input
+        className="challenge-input"
+        type="number"
+        value={dayWater}
+        onChange={(e) => {
+          const val = e.target.value;
+          setDayWater(val);
+          autoSaveDay({
+            waterLiters: val === "" ? undefined : Number(val),
+          });
+        }}
+      />
+    </div>
+  </div>
+
+  {/* 🏋️ Workout */}
+  <div className="challenge-tile">
+    <b>🏋️ Workout</b>
+
+    {workouts.length === 0 ? (
+      <p className="workout-empty">No workouts yet.</p>
+    ) : (
+      workouts.map((w) => (
+        <div key={w._id} className="food-item">
+          <div>
+            <strong>{w.type}</strong>
+            <p className="small-text">
+              {w.duration} min • {w.calories} kcal
+            </p>
+          </div>
+
+          <div className="food-actions">
+            <button onClick={() => setEditingWorkout(w)}>✏️</button>
+            <button onClick={() => handleDeleteWorkout(w._id)}>❌</button>
+          </div>
+        </div>
+      ))
     )}
-  />
 
- 
-</div>
+    <button onClick={() => setShowWorkoutModal(true)}>
+      + Add
+    </button>
+  </div>
 
-
-
-                <div className="challenge-tile challenge-tile-fixed">
-  <b>💧 Water</b>
+<div className="challenge-tile challenge-tile-fixed">
+  <b>🚶 Steps</b>
 
   <div className="challenge-tile-content">
     <input
       className="challenge-input"
       type="number"
-      value={dayWater}
+      value={daySteps}
       onChange={(e) => {
         const val = e.target.value;
-        setDayWater(val);
+        setDaySteps(val);
         autoSaveDay({
-          waterLiters: val === "" ? undefined : Number(val),
+          steps: val === "" ? undefined : Number(val),
         });
       }}
     />
@@ -528,57 +617,7 @@ const handleRestartChallenge = () => {
 </div>
 
 
-                 <div className="challenge-tile challenge-tile-fixed">
-  <b>📖 Reading</b>
-
-  <div className="challenge-tile-content">
-    <input
-      className="challenge-input"
-      type="number"
-      value={dayReading}
-      onChange={(e) => {
-        const val = e.target.value;
-        setDayReading(val);
-        autoSaveDay({
-          readingPages: val === "" ? undefined : Number(val),
-        });
-      }}
-    />
-  </div>
 </div>
-
-
-                  <div className="challenge-tile">
-  <b>🏋️ Workout</b>
-
-  {workouts.length === 0 ? (
-    <p className="workout-empty">No workouts yet.</p>
-  ) : (
-    workouts.map((w) => (
-      <div key={w._id} className="food-item">
-        <div>
-          <strong>{w.type}</strong>
-          <p className="small-text">
-            {w.duration} min • {w.calories} kcal
-          </p>
-        </div>
-
-        <div className="food-actions">
-          <button onClick={() => setEditingWorkout(w)}>✏️</button>
-          <button onClick={() => handleDeleteWorkout(w._id)}>❌</button>
-        </div>
-      </div>
-    ))
-  )}
-
-  <button onClick={() => setShowWorkoutModal(true)}>
-    + Add
-  </button>
-</div>
-
-  
-
-                </div>
            
 
               </div>

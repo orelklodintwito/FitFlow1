@@ -82,11 +82,12 @@ router.post("/", auth, async (req, res) => {
     });
 
     // 📆 יצירת יום 1
-    await ChallengeDay.create({
-      challenge: challenge._id,
-      dayNumber: 1,
-      date: today,
-    });
+   await ChallengeDay.create({
+  challenge: challenge._id,
+  dayNumber: 1,
+  date: today,
+});
+
 
     return res.status(201).json(challenge);
   } catch (err) {

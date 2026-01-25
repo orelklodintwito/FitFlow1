@@ -1,9 +1,6 @@
 // src/App.jsx
-import { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-
-// ⭐ Custom Hook – רק ללוגין
-import { useLocalStorage } from "./hooks/useLocalStorage";
+import { useState, useEffect } from "react";
 
 // ⭐ API
 import { getMeals, deleteMeal } from "./services/meals";
@@ -15,7 +12,7 @@ import HomePage from "./pages/HomePage.jsx";
 import MealsPage from "./pages/MealsPage.jsx";
 import ApiPage from "./pages/ApiPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
-import EditProfilePage from "./pages/EditProfilePage.jsx"; // ✅ חדש
+import EditProfilePage from "./pages/EditProfilePage.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -39,11 +36,21 @@ import "./styles/api.css";
 
 function App() {
   /* ====================================================== */
-  /* LOGIN – נשמר מקומית */
+  /* AUTH – מבוסס token */
   /* ====================================================== */
-  const [isLoggedIn, setIsLoggedIn] = useLocalStorage("isLoggedIn", false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem("token");
+  });
+
   const [showSignup, setShowSignup] = useState(false);
   const navigate = useNavigate();
+
+  // אם token נמחק/נוסף מבחוץ, נוודא sync בסיסי
+  useEffect(() => {
+    const syncAuth = () => setIsLoggedIn(!!localStorage.getItem("token"));
+    window.addEventListener("storage", syncAuth);
+    return () => window.removeEventListener("storage", syncAuth);
+  }, []);
 
   /* ====================================================== */
   /* MEALS – מגיעים מהשרת */
@@ -54,9 +61,6 @@ function App() {
     dinner: [],
   });
 
-  /* ====================================================== */
-  /* טעינת ארוחות מהשרת */
-  /* ====================================================== */
   const reloadMealsFromServer = async () => {
     try {
       const res = await getMeals();
@@ -169,23 +173,17 @@ function App() {
 
           {/* 👤 PROFILE */}
           <Route
-  path="/profile"
-  element={<SettingsPage setIsLoggedIn={setIsLoggedIn} />}
-/>
+            path="/profile"
+            element={<SettingsPage setIsLoggedIn={setIsLoggedIn} />}
+          />
 
           <Route path="/profile/edit" element={<EditProfilePage />} />
 
           {/* 🏆 CHALLENGE */}
-          <Route
-            path="/challenge"
-            element={<ChallengePage meals={meals} />}
-          />
+          <Route path="/challenge" element={<ChallengePage meals={meals} />} />
 
           {/* ❌ 404 */}
-          <Route
-            path="*"
-            element={<NotFound goHome={() => navigate("/")} />}
-          />
+          <Route path="*" element={<NotFound goHome={() => navigate("/")} />} />
         </Routes>
       </main>
 

@@ -15,3 +15,9 @@ export const getAllChallengeDays = () => {
 export const getChallengeDayByNumber = (dayNumber) => {
   return api.get(`/challenge-day/${dayNumber}`);
 };
+export const getTodayChallenge = async () => {
+  const res = await api.get("/challenge-day/today");
+  return res.data
+    ? { day: res.data, challengeId: res.data.challenge }
+    : null;
+};

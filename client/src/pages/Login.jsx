@@ -2,11 +2,13 @@
 import { useState } from "react";
 import bgImage from "../assets/images/login_bg.png";
 import { login } from "../services/auth";
+import { useNavigate } from "react-router-dom";
 
 function Login({ setShowSignup, setIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,19 +23,25 @@ function Login({ setShowSignup, setIsLoggedIn }) {
     }
 
     try {
-      // 🔗 קריאה לשרת
       const data = await login(email, password);
 
-      // 🔐 שמירת token (נכון!)
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (!data || !data.token) {
+        throw new Error("Token not received from server");
       }
+
+      // 🔐 שמירת token
+      localStorage.setItem("token", data.token);
 
       // סימון מחובר
       setIsLoggedIn(true);
+
+      // 🔁 ניווט אחרי login
+      navigate("/challenge");
     } catch (err) {
       setError(
-        err.response?.data?.message || "Login failed. Please try again."
+        err.response?.data?.message ||
+          err.message ||
+          "Login failed. Please try again."
       );
     }
   };

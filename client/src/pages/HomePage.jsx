@@ -2,15 +2,18 @@
 import { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
+import { useNavigate } from "react-router-dom";
+import { getTodayChallengeDay } from "../services/challengeDays";
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
-import { getChallenge } from "../services/challenge";
 
 // ⭐ REDUX
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMode } from "../redux/themeSlice";
 
 function HomePage({ meals, openFoodSearch, openManualFood }) {
+  const navigate = useNavigate();
+
   /* ============================== */
   /* REDUX */
   /* ============================== */
@@ -18,7 +21,7 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   const dispatch = useDispatch();
 
   /* ============================== */
-  /* MEALS CALCULATIONS (FROM SERVER) */
+  /* MEALS CALCULATIONS */
   /* ============================== */
   const allMeals = Object.values(meals || {}).flat();
 
@@ -40,24 +43,21 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   );
 
   /* ============================== */
-  /* CHALLENGE – FROM SERVER */
+  /* CHALLENGE – SOURCE OF TRUTH */
   /* ============================== */
-  const [challenge, setChallenge] = useState(null);
+  const [hasChallenge, setHasChallenge] = useState(false);
 
   useEffect(() => {
-    getChallenge()
-      .then((res) => setChallenge(res.data))
-      .catch(() => setChallenge(null));
+    getTodayChallengeDay()
+      .then((res) => {
+        setHasChallenge(!!res.data);
+      })
+      .catch(() => setHasChallenge(false));
   }, []);
 
-  const hasChallenge = challenge && challenge.goals;
-  const isWeekly = hasChallenge && challenge.trackingMode === "weekly";
-
-  const challengeTitle = !hasChallenge
-    ? "No Active Challenge"
-    : isWeekly
-    ? "Weekly Challenge"
-    : "Daily Challenge";
+  const challengeTitle = hasChallenge
+    ? "Active Challenge"
+    : "Ready for your next challenge?";
 
   /* ============================== */
   /* FAVORITES */
@@ -65,7 +65,7 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   const { favorites, removeFavorite } = useFavorites();
 
   /* ============================== */
-  /* BMI – FROM USER METRICS */
+  /* BMI */
   /* ============================== */
   const [height, setHeight] = useState(null);
   const [weight, setWeight] = useState(null);
@@ -111,43 +111,26 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   return (
     <div className={`home-full-bg ${mode}`}>
       <div className="dashboard">
-        {/* ================= THEME ================= */}
-        <div className="dashboard-card">
-          <h2>Theme</h2>
-          <button
-            onClick={() => dispatch(toggleMode())}
-            className="btn-green"
-          >
-            Switch to {mode === "dark" ? "Light" : "Dark"} Mode
-          </button>
-        </div>
-
+       
         {/* ================= CHALLENGE ================= */}
         <div className="dashboard-card">
-          <h2>{challengeTitle}</h2>
+  <h2>{challengeTitle}</h2>
 
-          {!challenge ? (
-            <p className="small-text">No active challenge</p>
-          ) : (
-            <>
-              <p className="small-text">
-                🏃 Steps goal: {challenge.goals?.steps ?? "-"}
-              </p>
-              <p className="small-text">
-                💧 Water goal: {challenge.goals?.water ?? "-"} L
-              </p>
-              <p className="small-text">
-                🏋️ Workouts goal: {challenge.goals?.workouts ?? "-"}
-              </p>
+  <div className="challenge-card-content">
+    <div className="challenge-text">
+      <p className="motivation-text">
+        One step at a time today 🚀
+      </p>
+    </div>
 
-              <p className="motivation-text">
-                {isWeekly
-                  ? "Stay consistent all week 💪"
-                  : "One step at a time today 🚀"}
-              </p>
-            </>
-          )}
-        </div>
+    <button
+      className="btn-green view-challenge-btn"
+      onClick={() => navigate("/challenge")}
+    >
+      View Challenge →
+    </button>
+  </div>
+</div>
 
         {/* ================= DAILY CALORIES ================= */}
         <div className="dashboard-card calories-card">
@@ -169,7 +152,7 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
                 <div
                   className="cal-fill"
                   style={{ width: `${progressPercent}%` }}
-                ></div>
+                />
               </div>
             </div>
           </div>
@@ -219,13 +202,21 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
                 <div
                   className="bmi-marker"
                   style={{ left: `${bmiPercent}%` }}
-                ></div>
+                />
               </div>
 
               <p className="bmi-value">
                 {bmi ? bmi : "Not calculated"}
               </p>
             </div>
+
+            <button
+              className="btn-green"
+              style={{ width: "100%", marginTop: "12px" }}
+              onClick={() => navigate("/profile/edit")}
+            >
+              Edit Height & Weight
+            </button>
           </div>
         </div>
 
