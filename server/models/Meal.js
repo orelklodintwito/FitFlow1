@@ -8,15 +8,21 @@ const mealSchema = new mongoose.Schema(
       trim: true,
     },
     calories: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    mealType: {
-      type: String,
-      enum: ["breakfast", "lunch", "dinner"],
-      required: true,
-    },
+  type: Number,
+  required: true,
+  min: 0,
+},
+protein: {
+  type: Number,
+  default: 0,
+  min: 0,
+},
+mealType: {
+  type: String,
+  enum: ["breakfast", "lunch", "dinner"],
+  required: true,
+},
+
     date: {
       type: Date,
       default: Date.now,

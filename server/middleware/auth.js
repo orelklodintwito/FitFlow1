@@ -11,9 +11,11 @@ module.exports = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 👇 עקביות מלאה עם שאר הקוד
-    req.userId = decoded.userId;
-    req.role = decoded.role;
+    // ✅ אחידות עם כל ה־routes
+    req.user = {
+      id: decoded.userId,
+      role: decoded.role,
+    };
 
     next();
   } catch (err) {

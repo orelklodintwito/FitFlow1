@@ -379,3 +379,44 @@
   color: #000;
   border-color: rgba(160,215,255,0.9);
 }
+.save-day-top {
+  margin: 12px 0 16px;
+  text-align: center;
+}
+
+.save-day-top .primary-btn {
+  width: 100%;
+}
+.workout-empty {
+  margin-top: 8px;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+
+
+  border-radius: 8px;
+  opacity: 0.9;
+}
+
+.challenge-input {
+  margin-top: auto;
+}
+/* 🔒 Water & Reading fixed layout */
+.challenge-tile-fixed {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.challenge-tile-fixed > b {
+  margin-bottom: 8px;
+}
+
+.challenge-tile-content {
+  margin-top: auto; /* ⬅️ זה הקסם */
+}
+
+.challenge-input {
+  width: 100%;
+}

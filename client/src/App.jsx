@@ -166,7 +166,12 @@ function App() {
 
           <Route path="/api" element={<ApiPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/challenge" element={<ChallengePage />} />
+           <Route
+  path="/challenge"
+  element={<ChallengePage meals={meals} />}
+/>
+
+
 
           <Route
             path="*"

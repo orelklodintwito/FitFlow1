@@ -1,6 +1,6 @@
-// src/modals/ManualFoodModal.jsx
 import { useState } from "react";
 import { addMeal } from "../services/meals";
+import { saveChallengeDay } from "../services/challengeDays";
 import "../styles/modal.css";
 
 function ManualFoodModal({ meal, onClose, onSuccess }) {
@@ -22,7 +22,10 @@ function ManualFoodModal({ meal, onClose, onSuccess }) {
         mealType: meal,
       });
 
-      onSuccess(); // 🔄 ריענון מהשרת
+      // ⭐ חשוב: עדכון היום באתגר (Nutrition)
+      await saveChallengeDay({});
+
+      onSuccess(); // 🔄 ריענון ארוחות
       onClose();
     } catch (err) {
       console.error("❌ Failed to add meal", err);

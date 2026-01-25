@@ -1,7 +1,7 @@
 // src/pages/Login.jsx
 import { useState } from "react";
 import bgImage from "../assets/images/login_bg.png";
-import { login } from "../services/auth"; // ✅ חיבור לשרת
+import { login } from "../services/auth";
 
 function Login({ setShowSignup, setIsLoggedIn }) {
   const [email, setEmail] = useState("");
@@ -21,11 +21,13 @@ function Login({ setShowSignup, setIsLoggedIn }) {
     }
 
     try {
-      // 🔗 קריאה אמיתית לשרת
-      const res = await login(email, password);
+      // 🔗 קריאה לשרת
+      const data = await login(email, password);
 
-      // 💾 שמירת token
-      localStorage.setItem("token", res.data.token);
+      // 🔐 שמירת token (נכון!)
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       // סימון מחובר
       setIsLoggedIn(true);
@@ -39,7 +41,6 @@ function Login({ setShowSignup, setIsLoggedIn }) {
   return (
     <div className="auth-bg" style={{ "--bg-image": `url(${bgImage})` }}>
       <div className="auth-box">
-
         <h1>Login to FitFlow</h1>
 
         <form className="auth-form" onSubmit={handleLogin}>
@@ -68,7 +69,6 @@ function Login({ setShowSignup, setIsLoggedIn }) {
             Sign Up
           </span>
         </p>
-
       </div>
     </div>
   );

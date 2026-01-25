@@ -57,6 +57,15 @@ const challengeDaySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    waterCompleted: {
+  type: Boolean,
+  default: false,
+},
+
+readingCompleted: {
+  type: Boolean,
+  default: false,
+},
 
     completed: {
       type: Boolean,

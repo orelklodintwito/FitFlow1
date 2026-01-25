@@ -22,7 +22,7 @@ const ApiPage = () => {
   const dispatch = useDispatch();
 
   // ⭐ CUSTOM HOOK – API
-  const url = `http://YOUR_SERVER_URL/api/external/meals?search=${query}`;
+const url = `http://localhost:5000/api/external/meals?search=${query}`;
   const { data, loading, error } = useApi(url);
 
   const meals = data?.meals || [];

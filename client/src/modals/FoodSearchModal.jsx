@@ -1,27 +1,33 @@
 import { useState } from "react";
 import "../styles/modal.css";
-import { useApi } from "../hooks/useApi";
 import FoodItem from "../components/FoodItem.jsx";
 import { addMeal } from "../services/meals";
+import { saveChallengeDay } from "../services/challengeDays";
 
 function FoodSearchModal({ meal, onClose, onSuccess }) {
   const [query, setQuery] = useState("");
   const [url, setUrl] = useState(null);
   const [loadingAdd, setLoadingAdd] = useState(false);
+  const [foods, setFoods] = useState([]);
 
-  const { data, loading, error } = useApi(url);
-  const foods = data?.products || [];
-
-  const searchFood = () => {
+  const searchFood = async () => {
     if (!query.trim()) return;
 
     const apiUrl =
       "https://corsproxy.io/?" +
       encodeURIComponent(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=10`
+        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`
       );
 
-    setUrl(apiUrl);
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      setFoods(data.products || []);
+      setUrl(apiUrl);
+    } catch (err) {
+      console.error("Failed to fetch foods", err);
+      setFoods([]);
+    }
   };
 
   const handleAddFood = async (item) => {
@@ -35,10 +41,13 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
         mealType: meal,
       });
 
-      onSuccess(); // 🔄 ריענון מהשרת
+      // ⭐ חשוב: עדכון היום באתגר (Nutrition)
+      await saveChallengeDay({});
+
+      onSuccess(); // 🔄 ריענון ארוחות
       onClose();
     } catch (err) {
-      console.error("❌ Failed to add food from API", err);
+      console.error("Failed to add food", err);
       alert("Failed to add food");
     } finally {
       setLoadingAdd(false);
@@ -47,7 +56,7 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box small">
+      <div className="modal-box">
         <h2 className="modal-title">Search Food for {meal}</h2>
 
         <input
@@ -61,10 +70,7 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
           Search
         </button>
 
-        {loading && <p>Loading...</p>}
-        {error && <p className="empty-text">{error}</p>}
-
-        {!loading && url && foods.length === 0 && (
+        {foods.length === 0 && url && !loadingAdd && (
           <p className="empty-text">No results</p>
         )}
 
@@ -74,12 +80,11 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
               key={item.code}
               item={item}
               onAdd={() => handleAddFood(item)}
-              disabled={loadingAdd}
             />
           ))}
         </div>
 
-        <button className="modal-btn gray" onClick={onClose}>
+        <button className="bottom-close" onClick={onClose}>
           Close
         </button>
       </div>

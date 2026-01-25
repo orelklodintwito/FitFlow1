@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
+const auth = require("../middleware/auth");
 const Challenge = require("../models/Challenge");
 const ChallengeDay = require("../models/ChallengeDay");
 const Workout = require("../models/Workout");
@@ -9,13 +10,11 @@ const CHALLENGE_RULES = require("../challenges/challengeRules");
 
 /**
  * GET /api/challenge-day/today
- * מחזיר את היום הנוכחי, ואם אין – יוצר יום חדש
- * ❗ לא יוצר ימים מעבר ל-durationDays
  */
-router.get("/today", async (req, res) => {
+router.get("/today", auth, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    const userId = req.user.id;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user id" });
     }
 
@@ -35,15 +34,6 @@ router.get("/today", async (req, res) => {
         challenge: challenge._id,
       }).sort({ dayNumber: -1 });
 
-      // ⛔ לא יוצרים ימים מעבר למשך האתגר
-      if (
-        lastDay &&
-        challenge.durationDays &&
-        lastDay.dayNumber >= challenge.durationDays
-      ) {
-        return res.json(lastDay);
-      }
-
       day = await ChallengeDay.create({
         challenge: challenge._id,
         date: today,
@@ -62,37 +52,26 @@ router.get("/today", async (req, res) => {
 
 /**
  * POST /api/challenge-day
- * שמירת נתוני יום + חישוב השלמה
  */
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user id" });
-    }
+    const userId = req.user.id;
 
     const challenge = await Challenge.findOne({ user: userId });
     if (!challenge) {
       return res.status(404).json({ message: "No active challenge found" });
     }
 
-    // חוקים – preset או custom
-    let rules;
-    if (challenge.type === "custom") {
-      rules = {
-        waterLiters: challenge.goals.water,
-        readingPages: challenge.goals.reading,
-        workouts: challenge.goals.workouts
-          ? { minMinutes: 1 }
-          : null,
-      };
-    } else {
-      rules = CHALLENGE_RULES[challenge.type];
-    }
-
-    if (!rules) {
-      return res.status(400).json({ message: "Invalid challenge rules" });
-    }
+    const rules =
+      challenge.type === "custom"
+        ? {
+            waterLiters: challenge.goals?.water,
+            readingPages: challenge.goals?.reading,
+            workouts: challenge.goals?.workouts
+              ? { minMinutes: 1 }
+              : null,
+          }
+        : CHALLENGE_RULES[challenge.type];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -106,7 +85,7 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "No active day found" });
     }
 
-    // ===== Inputs =====
+    /* ---------- SAVE RAW VALUES ---------- */
     if (typeof req.body.waterLiters === "number") {
       day.waterLiters = req.body.waterLiters;
     }
@@ -115,35 +94,47 @@ router.post("/", async (req, res) => {
       day.readingPages = req.body.readingPages;
     }
 
-    // ===== Checks =====
-    day.waterCompleted =
-      typeof rules.waterLiters === "number" &&
-      day.waterLiters >= rules.waterLiters;
+    /* ---------- WATER ---------- */
+    if (typeof rules.waterLiters === "number") {
+      day.waterCompleted =
+        typeof day.waterLiters === "number" &&
+        day.waterLiters >= rules.waterLiters;
+    } else {
+      day.waterCompleted = true;
+    }
 
-    day.readingCompleted =
-      typeof rules.readingPages === "number" &&
-      day.readingPages >= rules.readingPages;
+    /* ---------- READING ---------- */
+    if (typeof rules.readingPages === "number") {
+      day.readingCompleted =
+        typeof day.readingPages === "number" &&
+        day.readingPages >= rules.readingPages;
+    } else {
+      day.readingCompleted = true;
+    }
 
-    // אימונים
-    let workoutsCompleted = true;
-    if (rules.workouts && rules.workouts.minMinutes) {
+    /* ---------- WORKOUT ---------- */
+    if (rules.workouts?.minMinutes) {
       const workouts = await Workout.find({ challengeDay: day._id });
-      workoutsCompleted = workouts.some(
+      day.workoutsCompleted = workouts.some(
         (w) => w.duration >= rules.workouts.minMinutes
       );
+    } else {
+      day.workoutsCompleted = true;
     }
-    day.workoutsCompleted = workoutsCompleted;
 
-    // תזונה – זמנית true
+    /* ---------- NUTRITION ---------- */
     day.nutritionCompleted = true;
 
-    day.completed =
-      day.waterCompleted &&
-      day.readingCompleted &&
-      day.workoutsCompleted &&
-      day.nutritionCompleted;
+    /* ---------- FINAL STATUS ---------- */
+  /* ---------- FINAL STATUS ---------- */
+// completed = האם כל 4 המרכיבים בוצעו
+day.completed =
+  day.waterCompleted &&
+  day.readingCompleted &&
+  day.workoutsCompleted &&
+  day.nutritionCompleted;
 
-    day.failed = false;
+day.failed = false;
 
     await day.save();
     return res.json(day);
@@ -155,55 +146,32 @@ router.post("/", async (req, res) => {
 
 /**
  * GET /api/challenge-day
- * מחזיר את כל הימים של האתגר
  */
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: "No user" });
-
-    const challenge = await Challenge.findOne({ user: userId });
+    const challenge = await Challenge.findOne({ user: req.user.id });
     if (!challenge) return res.json([]);
 
-    const days = await ChallengeDay.find({ challenge: challenge._id }).sort({
-      dayNumber: 1,
-    });
+    const days = await ChallengeDay.find({
+      challenge: challenge._id,
+    }).sort({ dayNumber: 1 });
 
     return res.json(days);
-  } catch (err) {
+  } catch {
     return res.status(500).json({ message: "Failed to load challenge days" });
   }
 });
 
 /**
  * GET /api/challenge-day/:dayNumber
- * מחזיר יום ספציפי (ימים אחורה)
  */
-router.get("/:dayNumber", async (req, res) => {
+router.get("/:dayNumber", auth, async (req, res) => {
   try {
-    const userId = req.user?.id;
     const dayNumber = Number(req.params.dayNumber);
 
-    if (
-      !userId ||
-      !mongoose.Types.ObjectId.isValid(userId) ||
-      !Number.isInteger(dayNumber) ||
-      dayNumber < 1
-    ) {
-      return res.status(400).json({ message: "Invalid request" });
-    }
-
-    const challenge = await Challenge.findOne({ user: userId });
+    const challenge = await Challenge.findOne({ user: req.user.id });
     if (!challenge) {
       return res.status(404).json({ message: "No active challenge found" });
-    }
-
-    const lastDay = await ChallengeDay.findOne({
-      challenge: challenge._id,
-    }).sort({ dayNumber: -1 });
-
-    if (!lastDay || dayNumber > lastDay.dayNumber) {
-      return res.status(403).json({ message: "Day not available yet" });
     }
 
     const day = await ChallengeDay.findOne({
@@ -216,8 +184,7 @@ router.get("/:dayNumber", async (req, res) => {
     }
 
     return res.json(day);
-  } catch (err) {
-    console.error("Error fetching challenge day by number:", err);
+  } catch {
     return res.status(500).json({ message: "Server error" });
   }
 });

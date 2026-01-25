@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { updateMeal } from "../services/meals";
+import { saveChallengeDay } from "../services/challengeDays";
 import "../styles/modal.css";
 
 function EditFoodModal({ food, onClose, onSuccess }) {
@@ -18,7 +19,10 @@ function EditFoodModal({ food, onClose, onSuccess }) {
         protein: Number(protein),
       });
 
-      onSuccess(); // 🔄 ריענון מהשרת
+      // ⭐ חשוב: עדכון היום באתגר (Nutrition) גם בעריכה
+      await saveChallengeDay({});
+
+      onSuccess(); // 🔄 ריענון ארוחות
       onClose();
     } catch (err) {
       console.error("❌ Failed to update meal", err);

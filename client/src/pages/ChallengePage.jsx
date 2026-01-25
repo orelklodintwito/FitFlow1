@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import bgImage from "../assets/images/chal.png";
 import "../styles/challenge.css";
 import { useNavigate } from "react-router-dom";
+import { getWorkouts, deleteWorkout } from "../services/workouts";
+import EditWorkoutModal from "../modals/EditWorkoutModal";
+import NutritionDonut from "../components/NutritionDonut";
 
 import { getChallenge, saveChallenge } from "../services/challenge";
 import {
@@ -15,12 +18,14 @@ import {
 import { CHALLENGE_RULES } from "../challenges/challengeRules";
 import AddWorkoutModal from "../modals/AddWorkoutModal";
 
-function ChallengePage() {
+function ChallengePage({ meals }) {
+
   // select | custom | active
   const [step, setStep] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [durationDays, setDurationDays] = useState("");
+const [workoutsGoal, setWorkoutsGoal] = useState("");
 
   const [challenge, setChallenge] = useState(null);
   const [today, setToday] = useState(null);
@@ -29,8 +34,9 @@ function ChallengePage() {
   // custom challenge fields
   const [steps, setSteps] = useState("");
   const [water, setWater] = useState("");
-  const [workouts, setWorkouts] = useState("");
   const [reading, setReading] = useState("");
+  const [workouts, setWorkouts] = useState([]);
+const [editingWorkout, setEditingWorkout] = useState(null);
 
   const [customError, setCustomError] = useState("");
 
@@ -53,6 +59,15 @@ const totalDays =
     : rules?.durationDays;
 
   /* ================= HELPERS ================= */
+  const loadWorkouts = async () => {
+  try {
+    const res = await getWorkouts();
+    setWorkouts(res.data || []);
+  } catch (err) {
+    console.error("Failed to load workouts", err);
+  }
+};
+
   const refreshToday = async () => {
     try {
       const res = await getTodayChallengeDay();
@@ -72,6 +87,7 @@ const totalDays =
         setDayWater("");
         setDayReading("");
       }
+       await loadWorkouts();
     } catch {
       setToday(null);
     }
@@ -83,9 +99,10 @@ const totalDays =
       try {
         const res = await getChallenge();
         if (res.data) {
-          setChallenge(res.data);
-          setStep("active");
-          await refreshToday();
+  setChallenge(res.data);
+  setStep("active");
+  await refreshToday(); // ⭐ זה הבסיס להכול
+          
         } else {
           setStep("select");
         }
@@ -133,7 +150,8 @@ const handleCustomSave = async (e) => {
         steps: steps ? Number(steps) : undefined,
         water: water ? Number(water) : undefined,
         reading: reading ? Number(reading) : undefined,
-        workouts: workouts ? Number(workouts) : undefined,
+workouts: workoutsGoal ? Number(workoutsGoal) : undefined,
+
       },
     });
 
@@ -148,34 +166,61 @@ const handleCustomSave = async (e) => {
 };
 
   /* ================= SAVE DAY ================= */
-  const handleSaveDay = async () => {
-    setDayError("");
-    setSavingDay(true);
+  const handleDeleteWorkout = async (id) => {
+  const confirmed = window.confirm("Delete this workout?");
+  if (!confirmed) return;
 
-    try {
-      const res = await saveChallengeDay({
-        waterLiters: dayWater === "" ? undefined : Number(dayWater),
-        readingPages: dayReading === "" ? undefined : Number(dayReading),
-      });
+  try {
+    await deleteWorkout(id);
+    loadWorkouts();
+  } catch {
+    alert("Failed to delete workout");
+  }
+};
+const autoSaveDay = async (payload) => {
+  try {
+    await saveChallengeDay(payload);
+  } catch (err) {
+    console.error("Auto save failed", err);
+  }
+};
 
-      setToday(res.data);
 
-      setDayWater(
-        res.data?.waterLiters != null ? String(res.data.waterLiters) : ""
-      );
-      setDayReading(
-        res.data?.readingPages != null ? String(res.data.readingPages) : ""
-      );
+ const handleSaveDay = async () => {
+  setDayError("");
+  setSavingDay(true);
 
-      if (res.data?.failed) {
-        setDayError("You failed today.");
-      }
-    } catch {
-      setDayError("Failed to save daily progress");
-    } finally {
-      setSavingDay(false);
+  try {
+const res = await saveChallengeDay({
+  waterLiters: dayWater === "" ? undefined : Number(dayWater),
+  readingPages: dayReading === "" ? undefined : Number(dayReading),
+});
+
+
+
+    // 🔥 המקור היחיד לאמת – תשובת השרת
+    setToday(res.data);
+
+    setDayWater(
+      res.data.waterLiters != null ? String(res.data.waterLiters) : ""
+    );
+    setDayReading(
+      res.data.readingPages != null ? String(res.data.readingPages) : ""
+    );
+
+    if (res.data.failed) {
+      setDayError("You failed today.");
     }
-  };
+
+    // ❌ לא לקרוא ל-refreshToday כאן
+
+  } catch (err) {
+    setDayError("Failed to save daily progress");
+  } finally {
+    setSavingDay(false);
+  }
+};
+
   const handleSelectDay = async (dayNumber) => {
   try {
     const res = await getChallengeDayByNumber(dayNumber);
@@ -192,21 +237,54 @@ const handleCustomSave = async (e) => {
     alert("Failed to load selected day");
   }
 };
-const isReadonly = selectedDay !== today?.dayNumber;
-const totalTasks = 4;
+const isReadonly =
+  selectedDay !== null && selectedDay !== today?.dayNumber;
 
-const completedTasks = today
-  ? [
-      today.nutritionCompleted,
-      today.waterCompleted,
-      today.readingCompleted,
-      today.workoutsCompleted,
-    ].filter(Boolean).length
-  : 0;
+const allMeals = meals
+  ? Object.values(meals).flat()
+  : [];
+
+const totalCalories = allMeals.reduce(
+  (sum, m) => sum + Number(m.calories || 0),
+  0
+);
+
+const calorieGoal = rules?.calories || 2000;
+
+const nutritionCompleted =
+  Math.abs(totalCalories - calorieGoal) <= 100;
+
+
+
+
+
+
+const taskStatus = [
+  { enabled: true, done: nutritionCompleted },
+  {
+    enabled: typeof rules?.waterLiters === "number",
+    done: today?.waterCompleted,
+  },
+  {
+    enabled: typeof rules?.readingPages === "number",
+    done: today?.readingCompleted,
+  },
+  {
+    enabled: !!rules?.workouts,
+    done: today?.workoutsCompleted,
+  },
+];
+
+const enabledTasks = taskStatus.filter(t => t.enabled);
+const completedTasks = enabledTasks.filter(t => t.done).length;
+const totalTasks = enabledTasks.length;
 
 const progressPercent = Math.round(
   (completedTasks / totalTasks) * 100
 );
+
+
+
 const handleChangeChallenge = () => {
   const confirmed = window.confirm(
     "Are you sure you want to change the challenge?\nAll progress will be deleted."
@@ -230,6 +308,7 @@ const handleRestartChallenge = () => {
 
 
   if (loading || step === null) return null;
+
 
   return (
     <div
@@ -304,11 +383,12 @@ const handleRestartChallenge = () => {
 
       {/* Workouts */}
       <input
-        type="number"
-        placeholder="Workouts goal (optional)"
-        value={workouts}
-        onChange={(e) => setWorkouts(e.target.value)}
-      />
+  type="number"
+  placeholder="Workouts goal (optional)"
+  value={workoutsGoal}
+  onChange={(e) => setWorkoutsGoal(e.target.value)}
+/>
+
 
       {customError && <p className="error-text">{customError}</p>}
 
@@ -363,6 +443,7 @@ const handleRestartChallenge = () => {
             <div className="challenge-active-layout">
               <div className="dashboard-card">
                 <b>Status</b>
+                
                 <p>
                   {today?.failed
                     ? "FAILED"
@@ -370,6 +451,7 @@ const handleRestartChallenge = () => {
                     ? "COMPLETED"
                     : "IN PROGRESS"}
                 </p>
+                
                       <div className="daily-progress">
   <div className="progress-bar">
     <div
@@ -384,61 +466,121 @@ const handleRestartChallenge = () => {
   · {completedTasks} / {totalTasks} tasks completed
   ({progressPercent}%)
 </p>
+     <div style={{ marginTop: 20, textAlign: "center" }}>
+  <button
+    className="primary-btn"
+    onClick={handleSaveDay}
+    disabled={savingDay || isReadonly}
+  >
+    {savingDay ? "Saving..." : "Save Day"}
+  </button>
 
+  {dayError && (
+    <p className="error-text" style={{ marginTop: 8 }}>
+      {dayError}
+    </p>
+  )}
+</div>
 </div>
 
-               <button
-  onClick={handleSaveDay}
-  disabled={savingDay || isReadonly}
->
+        
 
-                  {savingDay ? "Saving..." : "Save Daily Progress"}
-                </button>
-
-                {dayError && <p className="error-text">{dayError}</p>}
               </div>
 
               <div className="dashboard-card">
                 <b>Today</b>
 
                 <div className="challenge-tiles">
-                 <div className="challenge-tile">
-   <b>🥗 Nutrition</b>
-  <button
-    onClick={() => navigate("/form")}
-  >
-    + Add Meal
-  </button>
+<div className="challenge-tile">
+  <b>🥗 Nutrition</b>
+
+  <NutritionDonut
+    consumedCalories={totalCalories}
+    targetCalories={calorieGoal}
+    protein={allMeals.reduce(
+      (sum, m) => sum + Number(m.protein || 0),
+      0
+    )}
+  />
+
+ 
+</div>
+
+
+
+                <div className="challenge-tile challenge-tile-fixed">
+  <b>💧 Water</b>
+
+  <div className="challenge-tile-content">
+    <input
+      className="challenge-input"
+      type="number"
+      value={dayWater}
+      onChange={(e) => {
+        const val = e.target.value;
+        setDayWater(val);
+        autoSaveDay({
+          waterLiters: val === "" ? undefined : Number(val),
+        });
+      }}
+    />
+  </div>
+</div>
+
+
+                 <div className="challenge-tile challenge-tile-fixed">
+  <b>📖 Reading</b>
+
+  <div className="challenge-tile-content">
+    <input
+      className="challenge-input"
+      type="number"
+      value={dayReading}
+      onChange={(e) => {
+        const val = e.target.value;
+        setDayReading(val);
+        autoSaveDay({
+          readingPages: val === "" ? undefined : Number(val),
+        });
+      }}
+    />
+  </div>
 </div>
 
 
                   <div className="challenge-tile">
-                     <b>💧 Water</b>
-                    <input
-                      type="number"
-                      value={dayWater}
-                      onChange={(e) => setDayWater(e.target.value)}
-                    />
-                  </div>
+  <b>🏋️ Workout</b>
 
-                  <div className="challenge-tile">
-                     <b>📖 Reading</b>
-                   <input
-  type="number"
-  value={dayReading}
-  disabled={isReadonly}
-  onChange={(e) => setDayReading(e.target.value)}
-/>
+  {workouts.length === 0 ? (
+    <p className="workout-empty">No workouts yet.</p>
+  ) : (
+    workouts.map((w) => (
+      <div key={w._id} className="food-item">
+        <div>
+          <strong>{w.type}</strong>
+          <p className="small-text">
+            {w.duration} min • {w.calories} kcal
+          </p>
+        </div>
 
-                  </div>
+        <div className="food-actions">
+          <button onClick={() => setEditingWorkout(w)}>✏️</button>
+          <button onClick={() => handleDeleteWorkout(w._id)}>❌</button>
+        </div>
+      </div>
+    ))
+  )}
 
-                  <div className="challenge-tile">
-                     <b>🏋️ Workout</b>
-                    <button onClick={() => setShowWorkoutModal(true)}>
-                      + Add
-                    </button>
-                  </div>
+  <button onClick={() => setShowWorkoutModal(true)}>
+    + Add
+  </button>
+</div>
+
+  
+
                 </div>
+           
+
               </div>
             </div>
 
@@ -462,6 +604,13 @@ const handleRestartChallenge = () => {
           </>
         )}
       </div>
+        {editingWorkout && (
+  <EditWorkoutModal
+    workout={editingWorkout}
+    onClose={() => setEditingWorkout(null)}
+    onSuccess={loadWorkouts}
+  />
+)}
 
       {showWorkoutModal && (
         <AddWorkoutModal
