@@ -15,6 +15,7 @@ import HomePage from "./pages/HomePage.jsx";
 import MealsPage from "./pages/MealsPage.jsx";
 import ApiPage from "./pages/ApiPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
+import EditProfilePage from "./pages/EditProfilePage.jsx"; // ✅ חדש
 import NotFound from "./pages/NotFound.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -85,7 +86,7 @@ function App() {
   }, [isLoggedIn]);
 
   /* ====================================================== */
-  /* DELETE MEAL – מחיקה אמיתית */
+  /* DELETE MEAL */
   /* ====================================================== */
   const handleDeleteMeal = async (id) => {
     try {
@@ -159,20 +160,28 @@ function App() {
                 meals={meals}
                 openFoodSearch={openFoodSearch}
                 openManualFood={openManualFood}
-                onDelete={handleDeleteMeal} // 🔥 מחיקה מחוברת
+                onDelete={handleDeleteMeal}
               />
             }
           />
 
           <Route path="/api" element={<ApiPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-           <Route
-  path="/challenge"
-  element={<ChallengePage meals={meals} />}
+
+          {/* 👤 PROFILE */}
+          <Route
+  path="/profile"
+  element={<SettingsPage setIsLoggedIn={setIsLoggedIn} />}
 />
 
+          <Route path="/profile/edit" element={<EditProfilePage />} />
 
+          {/* 🏆 CHALLENGE */}
+          <Route
+            path="/challenge"
+            element={<ChallengePage meals={meals} />}
+          />
 
+          {/* ❌ 404 */}
           <Route
             path="*"
             element={<NotFound goHome={() => navigate("/")} />}

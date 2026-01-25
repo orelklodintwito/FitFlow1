@@ -1,4 +1,3 @@
-// src/pages/Signup.jsx
 import { useState } from "react";
 import bgImage from "../assets/images/login_bg.png";
 
@@ -9,11 +8,15 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
 
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
+  const [height, setHeight] = useState(""); // ⬅️ בס"מ
 
   const [error, setError] = useState("");
 
-  const bmi = weight && height ? weight / (height * height) : null;
+  // BMI מחושב נכון: kg / (m²)
+  const bmi =
+    weight && height
+      ? weight / Math.pow(height / 100, 2)
+      : null;
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -29,15 +32,24 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
     if (!weight || !height)
       return setError("Please enter weight & height.");
 
-    console.log({
-      name,
-      email,
-      password,
-      age,
-      weight,
-      height,
-      bmi: bmi?.toFixed(1),
-    });
+    /* ✅ מקור האמת – נוצר כאן */
+    localStorage.setItem(
+      "userMetrics",
+      JSON.stringify({
+        height: Number(height), // cm
+        weight: Number(weight), // kg
+      })
+    );
+
+    /* (אופציונלי) שמירת פרטי משתמש בסיסיים */
+    localStorage.setItem(
+      "userProfile",
+      JSON.stringify({
+        name,
+        email,
+        age: Number(age),
+      })
+    );
 
     setIsLoggedIn(true);
   };
@@ -45,11 +57,9 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
   return (
     <div className="auth-bg" style={{ "--bg-image": `url(${bgImage})` }}>
       <div className="auth-box">
-
         <h1>Create Your Account</h1>
 
         <form className="auth-form" onSubmit={handleSignup}>
-          
           <input
             type="text"
             placeholder="Full name"
@@ -87,13 +97,15 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
 
           <input
             type="number"
-            placeholder="Height (m)"
+            placeholder="Height (cm)"
             value={height}
             onChange={(e) => setHeight(e.target.value)}
           />
 
           {bmi && (
-            <p className="bmi-preview">BMI: {bmi.toFixed(1)}</p>
+            <p className="bmi-preview">
+              BMI: {bmi.toFixed(1)}
+            </p>
           )}
 
           {error && <p className="error-text">{error}</p>}
@@ -107,7 +119,6 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
             Log In
           </span>
         </p>
-
       </div>
     </div>
   );

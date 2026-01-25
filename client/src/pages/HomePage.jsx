@@ -59,23 +59,39 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
     ? "Weekly Challenge"
     : "Daily Challenge";
 
-
-
   /* ============================== */
   /* FAVORITES */
   /* ============================== */
   const { favorites, removeFavorite } = useFavorites();
 
   /* ============================== */
-  /* BMI (STATIC FOR NOW) */
+  /* BMI – FROM USER METRICS */
   /* ============================== */
-  const bmi = 21.7;
+  const [height, setHeight] = useState(null);
+  const [weight, setWeight] = useState(null);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("userMetrics"));
+    if (saved) {
+      setHeight(saved.height);
+      setWeight(saved.weight);
+    }
+  }, []);
+
+  const bmi =
+    height && weight
+      ? (weight / Math.pow(height / 100, 2)).toFixed(1)
+      : null;
+
   const bmiMin = 15;
   const bmiMax = 35;
-  const bmiPercent = Math.min(
-    100,
-    Math.max(0, ((bmi - bmiMin) / (bmiMax - bmiMin)) * 100)
-  );
+
+  const bmiPercent = bmi
+    ? Math.min(
+        100,
+        Math.max(0, ((bmi - bmiMin) / (bmiMax - bmiMin)) * 100)
+      )
+    : 0;
 
   /* ============================== */
   /* MEAL MODAL */
@@ -95,7 +111,6 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   return (
     <div className={`home-full-bg ${mode}`}>
       <div className="dashboard">
-
         {/* ================= THEME ================= */}
         <div className="dashboard-card">
           <h2>Theme</h2>
@@ -207,7 +222,9 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
                 ></div>
               </div>
 
-              <p className="bmi-value">{bmi}</p>
+              <p className="bmi-value">
+                {bmi ? bmi : "Not calculated"}
+              </p>
             </div>
           </div>
         </div>
@@ -219,46 +236,43 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
           {favorites.length === 0 ? (
             <p>No favorites yet</p>
           ) : (
-            <ul>
-              <div className="meals-grid">
-  {favorites.map((meal) => (
-    <div key={meal.id} className="recipe-card">
-      <img
-        src={meal.thumb}
-        alt={meal.name}
-        className="recipe-img"
-      />
+            <div className="meals-grid">
+              {favorites.map((meal) => (
+                <div key={meal.id} className="recipe-card">
+                  <img
+                    src={meal.thumb}
+                    alt={meal.name}
+                    className="recipe-img"
+                  />
 
-      <h3 className="recipe-title">{meal.name}</h3>
+                  <h3 className="recipe-title">{meal.name}</h3>
 
-      <p className="recipe-info">
-        <strong>Category:</strong> {meal.category}
-      </p>
+                  <p className="recipe-info">
+                    <strong>Category:</strong> {meal.category}
+                  </p>
 
-      <p className="recipe-info">
-        <strong>Area:</strong> {meal.area}
-      </p>
+                  <p className="recipe-info">
+                    <strong>Area:</strong> {meal.area}
+                  </p>
 
-      <a
-        href={meal.youtube}
-        target="_blank"
-        rel="noreferrer"
-        className="recipe-btn"
-      >
-        View Recipe ▶
-      </a>
+                  <a
+                    href={meal.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="recipe-btn"
+                  >
+                    View Recipe ▶
+                  </a>
 
-      <button
-        className="recipe-btn"
-        onClick={() => removeFavorite(meal.id)}
-      >
-        Remove ★
-      </button>
-    </div>
-  ))}
-</div>
-
-            </ul>
+                  <button
+                    className="recipe-btn"
+                    onClick={() => removeFavorite(meal.id)}
+                  >
+                    Remove ★
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -286,7 +300,6 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

@@ -24,8 +24,9 @@ function Header({ setIsLoggedIn }) {
           Recipes
         </NavLink>
 
+        {/* ✅ PROFILE – תוקן מ־/settings ל־/profile */}
         <NavLink
-          to="/settings"
+          to="/profile"
           className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
         >
           Profile

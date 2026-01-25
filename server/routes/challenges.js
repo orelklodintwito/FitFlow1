@@ -44,34 +44,44 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Missing challenge type" });
     }
 
-    // מחיקת אתגר קודם + ימים
+    // 🔢 חישוב מספר ימים לפי סוג האתגר
+    let resolvedDurationDays =
+      type === "custom"
+        ? Number(durationDays)
+        : type === "14days"
+        ? 14
+        : type === "30days"
+        ? 30
+        : type === "75hard"
+        ? 75
+        : null;
+
+    if (!resolvedDurationDays) {
+      return res.status(400).json({ message: "Invalid challenge type" });
+    }
+
+    // 🧹 מחיקת אתגר קודם + כל הימים שלו
     const existing = await Challenge.findOne({ user: userId });
     if (existing) {
       await ChallengeDay.deleteMany({ challenge: existing._id });
       await existing.deleteOne();
     }
 
-    // תאריך התחלה (00:00)
+    // 📅 תאריך התחלה (00:00)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // 🆕 יצירת אתגר
     const challenge = await Challenge.create({
       user: userId,
       type,
-      durationDays:
-        type === "custom"
-          ? Number(durationDays)
-          : type === "14days"
-          ? 14
-          : type === "30days"
-          ? 30
-          : 75,
+      durationDays: resolvedDurationDays,
       displayMode: displayMode || "daily",
       goals: goals || {},
       startDate: today,
     });
 
-    // יצירת יום 1
+    // 📆 יצירת יום 1
     await ChallengeDay.create({
       challenge: challenge._id,
       dayNumber: 1,
