@@ -220,17 +220,44 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
             <p>No favorites yet</p>
           ) : (
             <ul>
-              {favorites.map((f) => (
-                <li key={f.id}>
-                  {f.name}
-                  <button
-                    style={{ marginLeft: "10px" }}
-                    onClick={() => removeFavorite(f.id)}
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
+              <div className="meals-grid">
+  {favorites.map((meal) => (
+    <div key={meal.id} className="recipe-card">
+      <img
+        src={meal.thumb}
+        alt={meal.name}
+        className="recipe-img"
+      />
+
+      <h3 className="recipe-title">{meal.name}</h3>
+
+      <p className="recipe-info">
+        <strong>Category:</strong> {meal.category}
+      </p>
+
+      <p className="recipe-info">
+        <strong>Area:</strong> {meal.area}
+      </p>
+
+      <a
+        href={meal.youtube}
+        target="_blank"
+        rel="noreferrer"
+        className="recipe-btn"
+      >
+        View Recipe ▶
+      </a>
+
+      <button
+        className="recipe-btn"
+        onClick={() => removeFavorite(meal.id)}
+      >
+        Remove ★
+      </button>
+    </div>
+  ))}
+</div>
+
             </ul>
           )}
         </div>

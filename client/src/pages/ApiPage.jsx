@@ -82,10 +82,14 @@ const url = `http://localhost:5000/api/external/meals?search=${query}`;
               <p className="no-results">No recipes found</p>
             ) : (
               meals.map((meal) => {
-                const item = {
-                  id: meal.idMeal,
-                  name: meal.strMeal,
-                };
+               const item = {
+  id: meal.idMeal,
+  name: meal.strMeal,
+  thumb: meal.strMealThumb,
+  category: meal.strCategory,
+  area: meal.strArea,
+  youtube: meal.strYoutube,
+};
 
                 return (
                   <div key={meal.idMeal} className="recipe-card">
