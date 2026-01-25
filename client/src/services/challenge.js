@@ -10,6 +10,11 @@ export const saveChallenge = (data) => {
   return api.post("/challenge", data);
 };
 
+// איפוס / שינוי אתגר
+export const deleteChallenge = () => {
+  return api.delete("/challenge");
+};
+
 // (אופציונלי) עדכון הגדרות אתגר
 export const updateChallengeSettings = (data) => {
   return api.put("/challenge/settings", data);

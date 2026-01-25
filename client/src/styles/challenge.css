@@ -1,0 +1,354 @@
+/* =============================== */
+/* CHALLENGE PAGE – FULL PAGE */
+/* =============================== */
+
+.challenge-page {
+  min-height: calc(100vh - 70px);
+  width: 100%;
+  padding: 40px 60px;
+
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  position: relative;
+}
+
+.challenge-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* =============================== */
+/* CONTAINER */
+/* =============================== */
+
+.challenge-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =============================== */
+/* PAGE LAYOUT (LEFT / RIGHT) */
+/* =============================== */
+
+.challenge-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* =============================== */
+/* DASHBOARD CARDS */
+/* =============================== */
+
+.dashboard-card {
+  background: var(--glass-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+/* =============================== */
+/* TODAY – 4 TILES */
+/* =============================== */
+
+.challenge-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+
+.challenge-tile {
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 20px;
+  padding: 22px;
+  min-height: 120px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.challenge-tile b {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.challenge-tile b::first-letter {
+  font-size: 1.4rem;
+}
+
+
+/* input בתוך קוביה */
+.challenge-tile input {
+  margin-top: 10px;
+  height: 44px;
+  font-size: 1rem;
+}
+
+.challenge-tile button {
+  margin-top: 12px;
+  height: 44px;
+  font-size: 1rem;
+}
+
+
+/* =============================== */
+/* DAY TIMELINE (ימים אחורה) */
+/* =============================== */
+
+.progress-timeline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+.day-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.day-dot:hover {
+  transform: scale(1.2);
+}
+
+.day-dot.today {
+  background: #90caf9;
+}
+
+.day-dot.completed {
+  background: #4caf50;
+}
+
+.day-dot.failed {
+  background: #e53935;
+}
+
+/* =============================== */
+/* MOBILE */
+/* =============================== */
+
+@media (max-width: 900px) {
+  .challenge-page {
+    padding: 24px 16px;
+  }
+
+  .challenge-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .challenge-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===== Days Strip ===== */
+.days-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 4px;
+  margin: 12px 0 20px;
+}
+
+.days-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.days-strip::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
+
+/* ===== Day Pill ===== */
+.day-pill {
+  min-width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-weight: 600;
+
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.day-pill:hover:not(:disabled) {
+  background: rgba(255,255,255,0.3);
+}
+
+.day-pill.active {
+  background: #aeddff;
+  color: #000;
+}
+
+.day-pill:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+/* ===== Days Strip ===== */
+.days-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 12px 4px;
+  margin: 12px 0 20px;
+}
+
+/* ===== Day Pill (FORCE OVERRIDE) ===== */
+.days-strip .day-pill {
+  width: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  height: 42px;
+
+  padding: 0 !important;
+  border-radius: 50% !important;
+
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.days-strip .day-pill.active {
+  background: #aeddff;
+  color: #000;
+}
+
+.days-strip .day-pill:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+/* ===== Daily Progress ===== */
+.daily-progress {
+  margin: 14px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9fd6ff, #bde7ff);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+/* ===== Bottom Challenge Actions ===== */
+.challenge-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  /* זה הרוחב של הכפתור הישן */
+  margin: 24px auto 0;
+}
+
+.challenge-actions button {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 14px 0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+/* Hover */
+.challenge-actions button:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* Restart – טיפה יותר אגרסיבי אבל עדיין שחור */
+.challenge-actions .danger-btn {
+  border-color: rgba(255, 80, 80, 0.5);
+}
+
+.challenge-actions .danger-btn:hover {
+  background: rgba(60, 0, 0, 0.7);
+}
+/* ===== Challenge Tile Header ===== */
+.challenge-tile b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* ===== Inputs – Light Blue Transparent ===== */
+.challenge-tile input {
+  width: 100%;
+  background: rgba(160, 215, 255, 0.35);
+  border: 1px solid rgba(160, 215, 255, 0.6);
+  color: #000;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.challenge-tile input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+/* ===== Workout Add Button ===== */
+.challenge-tile button {
+  width: 100%;
+  background: rgba(160, 215, 255, 0.6);
+  border: none;
+  color: #000;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.challenge-tile button:hover {
+  background: rgba(160, 215, 255, 0.85);
+}
+/* ===== Challenge Header ===== */
+.challenge-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.challenge-title {
+  font-size: 36px;        /* כותרת גדולה */
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.challenge-day {
+  font-size: 18px;        /* חצי בערך מהכותרת */
+  opacity: 0.75;
+}

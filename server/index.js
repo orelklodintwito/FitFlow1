@@ -1,22 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors"); // ✅ נוסף
+const cors = require("cors");
 
-const mealsRoutes = require("./routes/meals");
-const authRoutes = require("./routes/auth");
-const adminRoutes = require("./routes/admin");
-const externalApiRoutes = require("./routes/externalApi");
 const challengeRoutes = require("./routes/challenges");
+const challengeDaysRoutes = require("./routes/challengeDays");
+const workoutsRoutes = require("./routes/workouts"); // ✅ נוסף
 
 const app = express();
 
 /* ===================== MIDDLEWARE ===================== */
 app.use(express.json());
+
 app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -34,13 +35,21 @@ app.get("/", (req, res) => {
   res.status(200).send("FitFlow server is running");
 });
 
-/* ===================== ROUTES ===================== */
-app.use("/api/auth", authRoutes);
-app.use("/api/meals", mealsRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/external", externalApiRoutes);
-app.use("/api/challenge", challengeRoutes);
+/* ===================== DEV USER (temporary) ===================== */
+/**
+ * חשוב: משתמש פיתוח קבוע ותקין (ObjectId) כדי שכל השמירות/שליפות יהיו עקביות.
+ * ברגע שתעברו לאוטנטיקציה אמיתית – פשוט תורידי את זה.
+ */
+const DEV_USER_ID = "65ae7f5c9f1b2c3d4e5f6a7b";
+app.use("/api", (req, res, next) => {
+  req.user = { id: DEV_USER_ID };
+  next();
+});
 
+/* ===================== ROUTES ===================== */
+app.use("/api/challenge", challengeRoutes);
+app.use("/api/challenge-day", challengeDaysRoutes);
+app.use("/api/workouts", workoutsRoutes); // ✅ חדש – חיבור workouts
 
 /* ===================== ERROR HANDLING ===================== */
 app.use((req, res) => {
@@ -56,6 +65,4 @@ app.use((err, req, res, next) => {
 
 /* ===================== SERVER ===================== */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

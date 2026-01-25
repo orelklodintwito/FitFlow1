@@ -4,19 +4,19 @@ import { addWorkout } from "../services/workouts";
 import "../styles/modal.css";
 
 function AddWorkoutModal({ onClose, onSuccess }) {
-  const [type, setType] = useState("");
+  const [workoutType, setWorkoutType] = useState("");
   const [duration, setDuration] = useState("");
   const [calories, setCalories] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!type || !duration) return;
+    if (!workoutType || !duration) return;
 
     try {
       setLoading(true);
 
       await addWorkout({
-        type,
+        type: workoutType,
         duration: Number(duration),
         calories: Number(calories || 0),
       });
@@ -40,8 +40,8 @@ function AddWorkoutModal({ onClose, onSuccess }) {
           <label>Workout type</label>
           <input
             type="text"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
+            value={workoutType}
+            onChange={(e) => setWorkoutType(e.target.value)}
             className="modal-input"
             placeholder="Running, Strength, Yoga..."
           />
@@ -63,7 +63,11 @@ function AddWorkoutModal({ onClose, onSuccess }) {
           />
         </div>
 
-        <button className="modal-btn" onClick={handleSubmit} disabled={loading}>
+        <button
+          className="modal-btn"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
           {loading ? "Saving..." : "Add Workout"}
         </button>
 
