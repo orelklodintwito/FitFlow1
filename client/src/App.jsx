@@ -38,6 +38,8 @@ function App() {
   /* ====================================================== */
   /* AUTH – מבוסס token */
   /* ====================================================== */
+  
+
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem("token");
   });

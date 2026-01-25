@@ -1,5 +1,5 @@
 /* ========================================================= */
-/* GLOBAL RESET + DARK THEME */
+/* GLOBAL RESET */
 /* ========================================================= */
 
 * {
@@ -8,33 +8,48 @@
   box-sizing: border-box;
 }
 
+/* ========================================================= */
+/* COMMON VARIABLES */
+/* ========================================================= */
+
 :root {
-  /* Pastel palette */
   --pastel-blue: #a7d8ff;
   --pastel-green: #c9f7d1;
   --pastel-yellow: #ffe9b3;
   --pastel-pink: #ffc9d4;
   --pastel-purple: #d8c9ff;
 
-  /* New charcoal background (Option B you chose) */
-  --bg-main: #0d0d0d;
-
-  /* Cards new color: dark gray with 90% opacity */
+  /* cards ALWAYS dark glass */
   --glass-dark: rgba(30, 30, 30, 0.9);
-
-  /* Border subtle */
   --glass-border: rgba(255, 255, 255, 0.08);
 }
+
+/* ========================================================= */
+/* DARK MODE */
+/* ========================================================= */
+
+body.dark {
+  --bg-main: #0d0d0d;
+  color: #e6e6e6;
+}
+
+/* ========================================================= */
+/* LIGHT MODE (background only!) */
+/* ========================================================= */
+
+body.light {
+  --bg-main: #f3f4f6;
+  color: #111111;
+}
+
+/* ========================================================= */
+/* BODY */
+/* ========================================================= */
 
 body {
   font-family: system-ui, sans-serif;
   min-height: 100vh;
   background: var(--bg-main);
-  color: #e6e6e6;
-}
-
-body:not(.auth-page) {
-  background: var(--bg-main) !important;
 }
 
 /* Root stretches full page */
@@ -50,11 +65,23 @@ body:not(.auth-page) {
 .dashboard-card,
 .meal-card,
 .glass {
-  background: var(--glass-dark);
+  background: var(--glass-dark); /* 🔥 תמיד כהה */
   border: 1px solid var(--glass-border);
   border-radius: 18px;
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.6);
   padding: 20px;
 }
+/* ============================= */
+/* THEME – PAGE BACKGROUND ONLY */
+/* ============================= */
 
+body.dark {
+  background: #0d0d0d;
+  color: #e6e6e6;
+}
+
+body.light {
+  background: #f4f5f7;
+  color: #111111;
+}

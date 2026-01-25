@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import EditFoodModal from "../modals/EditFoodModal.jsx";
 import "../styles/meals.css";
 import "../styles/modal.css";
