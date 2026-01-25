@@ -1,4 +1,3 @@
-// server/routes/challengeDay.js
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -10,12 +9,12 @@ const CHALLENGE_RULES = require("../challenges/challengeRules");
 
 /**
  * GET /api/challenge-day/today
- * מחזיר את היום הנוכחי, ואם אין – יוצר Day 1
+ * מחזיר את היום הנוכחי, ואם אין – יוצר יום חדש
+ * ❗ לא יוצר ימים מעבר ל-durationDays
  */
 router.get("/today", async (req, res) => {
   try {
     const userId = req.user?.id;
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user id" });
     }
@@ -31,21 +30,27 @@ router.get("/today", async (req, res) => {
       date: today,
     });
 
-    // אם אין יום – יוצרים יום חדש
     if (!day) {
       const lastDay = await ChallengeDay.findOne({
         challenge: challenge._id,
       }).sort({ dayNumber: -1 });
 
-      day = new ChallengeDay({
+      // ⛔ לא יוצרים ימים מעבר למשך האתגר
+      if (
+        lastDay &&
+        challenge.durationDays &&
+        lastDay.dayNumber >= challenge.durationDays
+      ) {
+        return res.json(lastDay);
+      }
+
+      day = await ChallengeDay.create({
         challenge: challenge._id,
         date: today,
         dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
-        failed: false,          // ✅ חשוב
+        failed: false,
         completed: false,
       });
-
-      await day.save();
     }
 
     return res.json(day);
@@ -57,12 +62,11 @@ router.get("/today", async (req, res) => {
 
 /**
  * POST /api/challenge-day
- * שמירת הזנה יומית + חישוב התקדמות
+ * שמירת נתוני יום + חישוב השלמה
  */
 router.post("/", async (req, res) => {
   try {
     const userId = req.user?.id;
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user id" });
     }
@@ -72,7 +76,20 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "No active challenge found" });
     }
 
-    const rules = CHALLENGE_RULES[challenge.type];
+    // חוקים – preset או custom
+    let rules;
+    if (challenge.type === "custom") {
+      rules = {
+        waterLiters: challenge.goals.water,
+        readingPages: challenge.goals.reading,
+        workouts: challenge.goals.workouts
+          ? { minMinutes: 1 }
+          : null,
+      };
+    } else {
+      rules = CHALLENGE_RULES[challenge.type];
+    }
+
     if (!rules) {
       return res.status(400).json({ message: "Invalid challenge rules" });
     }
@@ -89,7 +106,7 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "No active day found" });
     }
 
-    /* ================= INPUTS ================= */
+    // ===== Inputs =====
     if (typeof req.body.waterLiters === "number") {
       day.waterLiters = req.body.waterLiters;
     }
@@ -98,51 +115,48 @@ router.post("/", async (req, res) => {
       day.readingPages = req.body.readingPages;
     }
 
-    /* ================= CHECK RULES ================= */
-
-    // 💧 מים
+    // ===== Checks =====
     day.waterCompleted =
       typeof rules.waterLiters === "number" &&
       day.waterLiters >= rules.waterLiters;
 
-    // 📖 קריאה
     day.readingCompleted =
       typeof rules.readingPages === "number" &&
       day.readingPages >= rules.readingPages;
 
-    // 🏋️ אימונים – מאפשר יותר מאחד ביום
-    const workouts = await Workout.find({ challengeDay: day._id });
+    // אימונים
+    let workoutsCompleted = true;
+    if (rules.workouts && rules.workouts.minMinutes) {
+      const workouts = await Workout.find({ challengeDay: day._id });
+      workoutsCompleted = workouts.some(
+        (w) => w.duration >= rules.workouts.minMinutes
+      );
+    }
+    day.workoutsCompleted = workoutsCompleted;
 
-    const validWorkouts = workouts.filter(
-      (w) => w.duration >= rules.workouts.minMinutes
-    );
-
-    // מספיק אימון אחד תקין (או יותר)
-    day.workoutsCompleted = validWorkouts.length > 0;
-
-    // 🥗 תזונה – זמנית true
+    // תזונה – זמנית true
     day.nutritionCompleted = true;
 
-    // ✅ יום הושלם רק אם הכול הושלם
     day.completed =
       day.waterCompleted &&
       day.readingCompleted &&
       day.workoutsCompleted &&
       day.nutritionCompleted;
 
-    // ❌ לא מסמנים FAILED באמצע היום
     day.failed = false;
 
     await day.save();
-
     return res.json(day);
   } catch (err) {
     console.error("Error saving challenge day:", err);
     return res.status(500).json({ message: "Failed to save progress" });
   }
 });
-// GET /api/challenge-day
-// מחזיר את כל הימים של האתגר הנוכחי
+
+/**
+ * GET /api/challenge-day
+ * מחזיר את כל הימים של האתגר
+ */
 router.get("/", async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -151,17 +165,19 @@ router.get("/", async (req, res) => {
     const challenge = await Challenge.findOne({ user: userId });
     if (!challenge) return res.json([]);
 
-    const days = await ChallengeDay.find({ challenge: challenge._id })
-      .sort({ dayNumber: 1 });
+    const days = await ChallengeDay.find({ challenge: challenge._id }).sort({
+      dayNumber: 1,
+    });
 
-    res.json(days);
+    return res.json(days);
   } catch (err) {
-    res.status(500).json({ message: "Failed to load challenge days" });
+    return res.status(500).json({ message: "Failed to load challenge days" });
   }
 });
+
 /**
  * GET /api/challenge-day/:dayNumber
- * מחזיר יום ספציפי לפי מספר יום
+ * מחזיר יום ספציפי (ימים אחורה)
  */
 router.get("/:dayNumber", async (req, res) => {
   try {

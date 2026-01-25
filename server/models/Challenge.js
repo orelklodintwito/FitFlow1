@@ -15,6 +15,12 @@ const challengeSchema = new mongoose.Schema(
       required: true,
     },
 
+    // ✅ מספר ימי האתגר
+    durationDays: {
+      type: Number,
+      required: true,
+    },
+
     displayMode: {
       type: String,
       enum: ["daily", "weekly"],
@@ -23,11 +29,16 @@ const challengeSchema = new mongoose.Schema(
 
     goals: {
       steps: Number,
-      water: Number,      // ליטרים
-      workouts: Number,   // לשבוע או ליום לפי displayMode
+      water: Number,
+      workouts: Number,
+      reading: Number,
     },
 
-    startDate: Date,
+    startDate: {
+      type: Date,
+      default: Date.now,
+    },
+
     endDate: Date,
   },
   { timestamps: true }

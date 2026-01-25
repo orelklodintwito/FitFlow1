@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Invalid user id" });
     }
 
-    const { type, displayMode, goals } = req.body;
+const { type, displayMode, goals, durationDays } = req.body;
 
     if (!type) {
       return res.status(400).json({ message: "Missing challenge type" });
@@ -54,13 +54,21 @@ router.post("/", async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const challenge = await Challenge.create({
-      user: userId,
-      type,
-      displayMode: displayMode || "daily",
-      goals: goals || {},
-      startDate: today,
-    });
+  const challenge = await Challenge.create({
+  user: userId,
+  type,
+  durationDays:
+    type === "custom"
+      ? Number(durationDays)
+      : type === "14days"
+      ? 14
+      : type === "30days"
+      ? 30
+      : 75,
+  displayMode: displayMode || "daily",
+  goals: goals || {},
+  startDate: today,
+});
 
     // יצירת יום 1
     await ChallengeDay.create({

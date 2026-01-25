@@ -20,16 +20,18 @@ function ChallengePage() {
   const [step, setStep] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [durationDays, setDurationDays] = useState("");
 
   const [challenge, setChallenge] = useState(null);
   const [today, setToday] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
 
   // custom challenge fields
-  const [displayMode, setDisplayMode] = useState("daily");
   const [steps, setSteps] = useState("");
   const [water, setWater] = useState("");
   const [workouts, setWorkouts] = useState("");
+  const [reading, setReading] = useState("");
+
   const [customError, setCustomError] = useState("");
 
   // daily inputs
@@ -45,6 +47,10 @@ function ChallengePage() {
     if (!challenge) return null;
     return CHALLENGE_RULES[challenge.type] || null;
   }, [challenge]);
+const totalDays =
+  challenge?.type === "custom"
+    ? challenge?.durationDays
+    : rules?.durationDays;
 
   /* ================= HELPERS ================= */
   const refreshToday = async () => {
@@ -113,30 +119,33 @@ function ChallengePage() {
   };
 
   /* ================= CUSTOM ================= */
-  const handleCustomSave = async (e) => {
-    e.preventDefault();
-    setCustomError("");
+const handleCustomSave = async (e) => {
+  e.preventDefault();
+  setCustomError("");
 
-    try {
-      setLoading(true);
-      const res = await saveChallenge({
-        type: "custom",
-        displayMode,
-        goals: {
-          steps: steps ? Number(steps) : undefined,
-          water: water ? Number(water) : undefined,
-          workouts: workouts ? Number(workouts) : undefined,
-        },
-      });
-      setChallenge(res.data);
-      setStep("active");
-      await refreshToday();
-    } catch {
-      setCustomError("Failed to save challenge");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+    const res = await saveChallenge({
+      type: "custom",
+      durationDays: Number(durationDays),
+      goals: {
+        steps: steps ? Number(steps) : undefined,
+        water: water ? Number(water) : undefined,
+        reading: reading ? Number(reading) : undefined,
+        workouts: workouts ? Number(workouts) : undefined,
+      },
+    });
+
+    setChallenge(res.data);
+    setStep("active");
+    await refreshToday();
+  } catch {
+    setCustomError("Failed to save challenge");
+  } finally {
+    setLoading(false);
+  }
+};
 
   /* ================= SAVE DAY ================= */
   const handleSaveDay = async () => {
@@ -253,75 +262,87 @@ const handleRestartChallenge = () => {
           </>
         )}
 
-        {/* ================= CUSTOM ================= */}
-        {step === "custom" && (
-          <>
-            <h1>Create Custom Challenge</h1>
-            <form className="auth-form" onSubmit={handleCustomSave}>
-              <div className="auth-toggle">
-                <button
-                  type="button"
-                  className={displayMode === "daily" ? "active" : ""}
-                  onClick={() => setDisplayMode("daily")}
-                >
-                  Daily
-                </button>
-                <button
-                  type="button"
-                  className={displayMode === "weekly" ? "active" : ""}
-                  onClick={() => setDisplayMode("weekly")}
-                >
-                  Weekly
-                </button>
-              </div>
+   {/* ================= CUSTOM ================= */}
+{step === "custom" && (
+  <>
+    <h1>Create Custom Challenge</h1>
 
-              <input
-                type="number"
-                placeholder="Steps goal"
-                value={steps}
-                onChange={(e) => setSteps(e.target.value)}
-              />
-             <input
-  type="number"
-  value={dayWater}
-  disabled={isReadonly}
-  onChange={(e) => setDayWater(e.target.value)}
-/>
+    <form className="auth-form" onSubmit={handleCustomSave}>
+      {/* Duration */}
+      <input
+        type="number"
+        min="1"
+        placeholder="Challenge duration (days)"
+        value={durationDays}
+        onChange={(e) => setDurationDays(e.target.value)}
+        required
+      />
 
-              <input
-                type="number"
-                placeholder="Workouts goal"
-                value={workouts}
-                onChange={(e) => setWorkouts(e.target.value)}
-              />
+      {/* Steps */}
+      <input
+        type="number"
+        placeholder="Steps goal (optional)"
+        value={steps}
+        onChange={(e) => setSteps(e.target.value)}
+      />
 
-              {customError && <p className="error-text">{customError}</p>}
+      {/* Water */}
+      <input
+        type="number"
+        placeholder="Water goal (liters, optional)"
+        value={water}
+        onChange={(e) => setWater(e.target.value)}
+      />
 
-              <button type="submit">Save Challenge</button>
-              <button
-                type="button"
-                style={{ background: "transparent", marginTop: 10 }}
-                onClick={() => setStep("select")}
-              >
-                ← Back
-              </button>
-            </form>
-          </>
-        )}
+      {/* Reading */}
+      <input
+        type="number"
+        placeholder="Reading goal (pages, optional)"
+        value={reading}
+        onChange={(e) => setReading(e.target.value)}
+      />
+
+      {/* Workouts */}
+      <input
+        type="number"
+        placeholder="Workouts goal (optional)"
+        value={workouts}
+        onChange={(e) => setWorkouts(e.target.value)}
+      />
+
+      {customError && <p className="error-text">{customError}</p>}
+
+      <button type="submit">Save Challenge</button>
+
+      <button
+        type="button"
+        style={{ background: "transparent", marginTop: 10 }}
+        onClick={() => setStep("select")}
+      >
+        ← Back
+      </button>
+    </form>
+  </>
+)}
+
 
         {/* ================= ACTIVE ================= */}
         {step === "active" && challenge && rules && (
           <>
-            <div className="challenge-header">
-  <h1 className="challenge-title">{rules.name}</h1>
+          <div className="challenge-header">
+  <h1 className="challenge-title">
+    {challenge.type === "custom" ? "Custom Challenge" : rules.name}
+  </h1>
+
   <div className="challenge-day">
     Day {today?.dayNumber || 1}
-    {rules.durationDays && ` / ${rules.durationDays}`}
+    {totalDays && ` / ${totalDays}`}
   </div>
 </div>
 
-            <div className="days-strip">
-  {Array.from({ length: rules.durationDays }).map((_, i) => {
+
+          <div className="days-strip">
+  {Array.from({ length: totalDays || 0 }).map((_, i) => {
     const dayNum = i + 1;
     const isFuture = today && dayNum > today.dayNumber;
     const isActive = dayNum === selectedDay;
@@ -357,9 +378,13 @@ const handleRestartChallenge = () => {
     />
   </div>
 
-  <p className="small-text">
-    {completedTasks} / {totalTasks} completed ({progressPercent}%)
-  </p>
+<p className="small-text">
+  Day {today?.dayNumber || 1}
+  {totalDays ? ` / ${totalDays}` : ""}
+  · {completedTasks} / {totalTasks} tasks completed
+  ({progressPercent}%)
+</p>
+
 </div>
 
                <button

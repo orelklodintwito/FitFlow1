@@ -352,3 +352,30 @@
   font-size: 18px;        /* חצי בערך מהכותרת */
   opacity: 0.75;
 }
+/* ===== Custom Challenge Form ===== */
+.auth-form input {
+  margin-bottom: 14px;
+}
+
+/* Toggle */
+.auth-toggle {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 18px;
+}
+
+.auth-toggle button {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 10px 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.auth-toggle button.active {
+  background: rgba(160,215,255,0.6);
+  color: #000;
+  border-color: rgba(160,215,255,0.9);
+}

@@ -1,20 +1,15 @@
-// src/components/Header.jsx
 import { NavLink } from "react-router-dom";
 import "../styles/header.css";
 
 function Header({ setIsLoggedIn }) {
   return (
     <header className="header">
-      <div className="logo">FitFlow</div>
+      {/* Logo = Home */}
+      <NavLink to="/" className="logo">
+        FitFlow
+      </NavLink>
 
       <nav className="nav">
-        <NavLink
-          to="/"
-          className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
-        >
-          Home
-        </NavLink>
-
         <NavLink
           to="/form"
           className={({ isActive }) => `nav-pill ${isActive ? "active" : ""}`}
