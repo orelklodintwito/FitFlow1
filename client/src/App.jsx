@@ -180,6 +180,7 @@ function App() {
                 openFoodSearch={openFoodSearch}
                 openManualFood={openManualFood}
                 onDelete={handleDeleteMeal}
+                onReload={reloadMealsFromServer}   // ⭐ חשוב
               />
             }
           />

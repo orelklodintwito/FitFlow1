@@ -35,11 +35,10 @@ function EditFoodModal({ food, onClose, onSuccess }) {
       console.warn("⚠️ saveChallengeDay failed (edit)", err);
     }
 
-    // 3️⃣ סגירת מודאל
-    onClose?.();
+    await onSuccess?.();  // מרענן meals באב
 
-    // 4️⃣ עדכון ה־UI למעלה (MealsPage)
-    onSuccess?.(res.data);
+
+onClose?.();          // סוגר מודאל
 
     // 5️⃣ סיום
     setLoading(false);

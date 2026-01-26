@@ -194,12 +194,11 @@ const handleApiAdd = () => {
       {editing.open && (
   <EditFoodModal
     food={editing.food}
-    onClose={() => {
-      setEditing({ open: false, food: null });
-      window.location.reload(); // 💥 ריפרש מלא – כמו Delete
-    }}
+    onClose={() => setEditing({ open: false, food: null })}
+    onSuccess={onReload}   // ⭐ זה החיבור שחסר
   />
 )}
+
 
     </div>
   );
