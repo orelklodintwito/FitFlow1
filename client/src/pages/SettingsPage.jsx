@@ -56,10 +56,24 @@ const [userProfile, setUserProfile] = useState(null);
   const [challenge, setChallenge] = useState(null);
 
   useEffect(() => {
-    getChallenge()
-      .then((res) => setChallenge(res.data))
-      .catch(() => setChallenge(null));
-  }, []);
+  const loadChallenge = async () => {
+    try {
+      const res = await getChallenge();
+
+      if (res.data?.challenge) {
+        setChallenge(res.data.challenge);
+      } else {
+        setChallenge(null);
+      }
+    } catch (err) {
+      console.error("Failed to load challenge", err);
+      setChallenge(null);
+    }
+  };
+
+  loadChallenge();
+}, []);
+
 
   /* ============================== */
   /* LOGOUT */
