@@ -12,7 +12,13 @@ export function useApi(url) {
     setLoading(true);
     setError(null);
 
-    fetch(url, { credentials: "omit" })
+    const BASE_URL =
+  import.meta.env.PROD
+    ? "https://fitflow1.onrender.com"
+    : "";
+
+fetch(`${BASE_URL}${url}`)
+
 
 
       .then((res) => {
