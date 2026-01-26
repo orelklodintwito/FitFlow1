@@ -5,7 +5,7 @@ export const login = async (email, password) => {
   return res.data;
 };
 
-
-export const signup = (email, password, name) => {
-  return api.post("/auth/signup", { email, password, name });
+export const signup = async (data) => {
+  const res = await api.post("/auth/signup", data);
+  return res.data;
 };

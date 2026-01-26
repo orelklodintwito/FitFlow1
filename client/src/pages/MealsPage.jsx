@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import EditFoodModal from "../modals/EditFoodModal.jsx";
 import "../styles/meals.css";
@@ -34,31 +35,47 @@ function MealsPage({
   const [filter, setFilter] = useState("today");
   const [selectedMeal, setSelectedMeal] = useState(null);
 
+  const location = useLocation();
+  const dateFromChallenge = location.state?.date
+    ? new Date(location.state.date)
+    : null;
+
   /* ===================== FILTER BY DATE ===================== */
-  const now = new Date();
+  const now = new Date();const baseDate = dateFromChallenge || new Date();
 
-  const filteredMeals = Object.fromEntries(
-    Object.entries(meals).map(([mealName, list]) => [
-      mealName,
-      list.filter((food) => {
-        const foodDate = new Date(food.date);
 
-        if (filter === "today") {
-          return foodDate >= startOfDay(now);
-        }
+const filteredMeals = Object.fromEntries(
+  Object.entries(meals).map(([mealName, list]) => [
+    mealName,
+    list.filter((food) => {
+      const foodDate = new Date(food.date);
 
-        if (filter === "week") {
-          return foodDate >= startOfWeek(now);
-        }
+      // 👈 צפייה מ־Challenge ביום מסוים
+      if (dateFromChallenge) {
+        const start = startOfDay(dateFromChallenge);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+        return foodDate >= start && foodDate < end;
+      }
 
-        if (filter === "month") {
-          return foodDate >= startOfMonth(now);
-        }
+      // 👇 מצב רגיל
+      if (filter === "today") {
+        return foodDate >= startOfDay(new Date());
+      }
 
-        return true;
-      }),
-    ])
-  );
+      if (filter === "week") {
+        return foodDate >= startOfWeek(new Date());
+      }
+
+      if (filter === "month") {
+        return foodDate >= startOfMonth(new Date());
+      }
+
+      return true;
+    }),
+  ])
+);
+
 
   /* ===================== CALCULATIONS ===================== */
   const getCalories = (list) =>
@@ -69,14 +86,17 @@ function MealsPage({
 
   /* ===================== ADD HANDLERS ===================== */
   const handleManualAdd = () => {
-    openManualFood(selectedMeal);
-    setSelectedMeal(null);
-  };
+  if (!openManualFood) return;
+  openManualFood(selectedMeal);
+  setSelectedMeal(null);
+};
 
-  const handleApiAdd = () => {
-    openFoodSearch(selectedMeal);
-    setSelectedMeal(null);
-  };
+const handleApiAdd = () => {
+  if (!openFoodSearch) return;
+  openFoodSearch(selectedMeal);
+  setSelectedMeal(null);
+};
+
 
   /* ===================== EDIT MODAL ===================== */
   const [editing, setEditing] = useState({

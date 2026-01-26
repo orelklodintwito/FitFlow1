@@ -22,7 +22,11 @@ mealType: {
   enum: ["breakfast", "lunch", "dinner"],
   required: true,
 },
-
+challengeDay: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "ChallengeDay",
+  default: null,
+},
     date: {
       type: Date,
       default: Date.now,

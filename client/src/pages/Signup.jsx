@@ -1,7 +1,6 @@
-// src/pages/Signup.jsx
 import { useState } from "react";
 import bgImage from "../assets/images/login_bg.png";
-import { signup } from "../services/auth"; // ✅ חובה
+import { signup } from "../services/auth";
 
 function Signup({ setShowSignup, setIsLoggedIn }) {
   const [name, setName] = useState("");
@@ -10,30 +9,57 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
 
   const [age, setAge] = useState("");
   const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState(""); // cm
+  const [height, setHeight] = useState("");
 
-  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const bmi =
-    weight && height
-      ? weight / Math.pow(height / 100, 2)
-      : null;
+    weight && height ? weight / Math.pow(height / 100, 2) : null;
+
+  const validate = () => {
+    const errors = {};
+
+    if (!name || name.length < 3) {
+      errors.name = "Name must be at least 3 characters";
+    }
+
+    if (!email) {
+      errors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!password || password.length < 4) {
+      errors.password = "Password must be at least 4 characters";
+    }
+
+    if (!age || age < 5 || age > 120) {
+      errors.age = "Please enter a valid age";
+    }
+
+    if (!weight) {
+      errors.weight = "Weight is required";
+    }
+
+    if (!height) {
+      errors.height = "Height is required";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError("");
+    setServerError("");
 
-    if (name.length < 3) return setError("Name must be at least 3 characters.");
-    if (!email.includes("@")) return setError("Enter a valid email.");
-    if (password.length < 4)
-      return setError("Password must be at least 4 characters.");
-    if (!age || age < 5 || age > 120)
-      return setError("Please enter a valid age.");
-    if (!weight || !height)
-      return setError("Please enter weight & height.");
+    if (!validate()) return;
 
     try {
-      // 🔗 קריאה לשרת (כמו Login)
+      setLoading(true);
+
       const data = await signup({
         name,
         email,
@@ -43,12 +69,10 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
         height: Number(height),
       });
 
-      // 🔐 שמירת token
-      if (data.token) {
+      if (data?.token) {
         localStorage.setItem("token", data.token);
       }
 
-      // 💾 שמירת נתוני גוף (ל־Profile / BMI)
       localStorage.setItem(
         "userMetrics",
         JSON.stringify({
@@ -57,7 +81,6 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
         })
       );
 
-      // (אופציונלי) פרטי משתמש בסיסיים
       localStorage.setItem(
         "userProfile",
         JSON.stringify({
@@ -69,11 +92,18 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
 
       setIsLoggedIn(true);
     } catch (err) {
-      setError(
+      setServerError(
         err.response?.data?.message ||
           "Signup failed. Please try again."
       );
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const clearFieldError = (field) => {
+    setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+    setServerError("");
   };
 
   return (
@@ -81,53 +111,91 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
       <div className="auth-box">
         <h1>Create Your Account</h1>
 
-        <form className="auth-form" onSubmit={handleSignup}>
+        <form className="auth-form" onSubmit={handleSignup} noValidate>
           <input
             type="text"
             placeholder="Full name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              clearFieldError("name");
+            }}
           />
+          {fieldErrors.name && (
+            <p className="error-text">{fieldErrors.name}</p>
+          )}
 
           <input
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearFieldError("email");
+            }}
           />
+          {fieldErrors.email && (
+            <p className="error-text">{fieldErrors.email}</p>
+          )}
 
           <input
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              clearFieldError("password");
+            }}
           />
+          {fieldErrors.password && (
+            <p className="error-text">{fieldErrors.password}</p>
+          )}
 
           <input
             type="number"
             placeholder="Age"
             value={age}
-            onChange={(e) => setAge(e.target.value)}
+            onChange={(e) => {
+              setAge(e.target.value);
+              clearFieldError("age");
+            }}
           />
+          {fieldErrors.age && (
+            <p className="error-text">{fieldErrors.age}</p>
+          )}
 
           <input
             type="number"
             placeholder="Weight (kg)"
             value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            onChange={(e) => {
+              setWeight(e.target.value);
+              clearFieldError("weight");
+            }}
           />
+          {fieldErrors.weight && (
+            <p className="error-text">{fieldErrors.weight}</p>
+          )}
 
           <input
             type="number"
             placeholder="Height (cm)"
             value={height}
-            onChange={(e) => setHeight(e.target.value)}
+            onChange={(e) => {
+              setHeight(e.target.value);
+              clearFieldError("height");
+            }}
           />
+          {fieldErrors.height && (
+            <p className="error-text">{fieldErrors.height}</p>
+          )}
 
           {bmi && <p className="bmi-preview">BMI: {bmi.toFixed(1)}</p>}
-          {error && <p className="error-text">{error}</p>}
+          {serverError && <p className="error-text">{serverError}</p>}
 
-          <button type="submit">Create Account</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Create Account"}
+          </button>
         </form>
 
         <p>

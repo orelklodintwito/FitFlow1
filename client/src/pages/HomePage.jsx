@@ -1,15 +1,16 @@
-// src/pages/HomePage.jsx
 import { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
 import { useNavigate } from "react-router-dom";
-import { getTodayChallengeDay } from "../services/challengeDays";
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
 
 // ⭐ REDUX
 import { useSelector, useDispatch } from "react-redux";
 import { toggleMode } from "../redux/themeSlice";
+
+// ⭐ HOOK
+import { useHomeDashboard } from "../hooks/useHomeDashboard";
 
 function HomePage({ meals, openFoodSearch, openManualFood }) {
   const navigate = useNavigate();
@@ -21,43 +22,16 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   const dispatch = useDispatch();
 
   /* ============================== */
-  /* MEALS CALCULATIONS */
+  /* DASHBOARD HOOK */
   /* ============================== */
-  const allMeals = Object.values(meals || {}).flat();
-
-  const totalCalories = allMeals.reduce(
-    (sum, meal) => sum + Number(meal.calories || 0),
-    0
-  );
-
-  const totalProtein = allMeals.reduce(
-    (sum, meal) => sum + Number(meal.protein || 0),
-    0
-  );
-
-  const dailyGoal = 2000;
-  const caloriesLeft = Math.max(dailyGoal - totalCalories, 0);
-  const progressPercent = Math.min(
-    100,
-    Math.round((totalCalories / dailyGoal) * 100)
-  );
-
-  /* ============================== */
-  /* CHALLENGE – SOURCE OF TRUTH */
-  /* ============================== */
-  const [hasChallenge, setHasChallenge] = useState(false);
-
-  useEffect(() => {
-    getTodayChallengeDay()
-      .then((res) => {
-        setHasChallenge(!!res.data);
-      })
-      .catch(() => setHasChallenge(false));
-  }, []);
-
-  const challengeTitle = hasChallenge
-    ? "Active Challenge"
-    : "Ready for your next challenge?";
+  const {
+    allMeals,
+    totalCalories,
+    totalProtein,
+    caloriesLeft,
+    progressPercent,
+    challengeTitle,
+  } = useHomeDashboard(meals);
 
   /* ============================== */
   /* FAVORITES */
@@ -111,26 +85,26 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   return (
     <div className={`home-full-bg ${mode}`}>
       <div className="dashboard">
-       
+
         {/* ================= CHALLENGE ================= */}
         <div className="dashboard-card">
-  <h2>{challengeTitle}</h2>
+          <h2>{challengeTitle}</h2>
 
-  <div className="challenge-card-content">
-    <div className="challenge-text">
-      <p className="motivation-text">
-        One step at a time today 🚀
-      </p>
-    </div>
+          <div className="challenge-card-content">
+            <div className="challenge-text">
+              <p className="motivation-text">
+                One step at a time today 🚀
+              </p>
+            </div>
 
-    <button
-      className="btn-green view-challenge-btn"
-      onClick={() => navigate("/challenge")}
-    >
-      View Challenge →
-    </button>
-  </div>
-</div>
+            <button
+              className="btn-green view-challenge-btn"
+              onClick={() => navigate("/challenge")}
+            >
+              View Challenge →
+            </button>
+          </div>
+        </div>
 
         {/* ================= DAILY CALORIES ================= */}
         <div className="dashboard-card calories-card">
@@ -291,6 +265,7 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
