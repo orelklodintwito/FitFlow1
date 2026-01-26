@@ -144,6 +144,11 @@ const handleApiAdd = () => {
       )}
     </div>
   );
+const handleMealUpdated = () => {
+  if (onReload) {
+    onReload(); // refetch מהשרת
+  }
+};
 
   /* ===================== RENDER ===================== */
   return (
@@ -193,7 +198,8 @@ const handleApiAdd = () => {
         <EditFoodModal
           food={editing.food}
           onClose={() => setEditing({ open: false, food: null })}
-          onSuccess={onReload}
+          onSuccess={handleMealUpdated}
+
         />
       )}
     </div>
