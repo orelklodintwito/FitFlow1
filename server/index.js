@@ -24,6 +24,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+// ✅ טיפול מפורש ב־preflight
+app.use(cors());
+
 
 /* ===================== DATABASE ===================== */
 mongoose

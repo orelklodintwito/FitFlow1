@@ -10,6 +10,7 @@ function SettingsPage({ setIsLoggedIn }) {
   /* ============================== */
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("userMetrics"));
@@ -18,6 +19,15 @@ function SettingsPage({ setIsLoggedIn }) {
       setWeight(saved.weight);
     }
   }, []);
+    useEffect(() => {
+      const savedProfile = JSON.parse(
+        localStorage.getItem("userProfile")
+      );
+
+      if (savedProfile) {
+        setUserProfile(savedProfile);
+      }
+    }, []);
 
   const bmi =
     height && weight
@@ -79,8 +89,15 @@ const handleLogout = () => {
         <h2>Personal Information</h2>
         <p className="small-text">Your basic profile details</p>
 
-        <p><strong>Name:</strong> Guest User</p>
-        <p><strong>Email:</strong> user@example.com</p>
+        <p>
+          <strong>Name:</strong>{" "}
+          {userProfile?.name || "—"}
+        </p>
+        <p>
+          <strong>Email:</strong>{" "}
+          {userProfile?.email || "—"}
+        </p>
+
       </div>
 
       {/* ================= BODY & HEALTH ================= */}

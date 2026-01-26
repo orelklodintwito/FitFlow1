@@ -21,3 +21,6 @@ export const getTodayChallenge = async () => {
     ? { day: res.data, challengeId: res.data.challenge }
     : null;
 };
+export const resetChallengeDays = () => {
+  return api.delete("/challenge-day");
+};

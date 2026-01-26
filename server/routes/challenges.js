@@ -18,13 +18,45 @@ router.get("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Invalid user id" });
     }
 
-    const challenge = await Challenge.findOne({ user: userId }).lean();
-    return res.json(challenge || null);
+    const challenge = await Challenge.findOne({ user: userId });
+    if (!challenge) {
+      return res.json(null);
+    }
+
+    // 📅 היום הנוכחי (00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let day = await ChallengeDay.findOne({
+      challenge: challenge._id,
+      date: today,
+    });
+
+    // אם משום מה אין יום – ניצור (הגנה)
+    if (!day) {
+      const lastDay = await ChallengeDay.findOne({
+        challenge: challenge._id,
+      }).sort({ dayNumber: -1 });
+
+      day = await ChallengeDay.create({
+        challenge: challenge._id,
+        date: today,
+        dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
+        failed: false,
+        completed: false,
+      });
+    }
+
+    return res.json({
+      challenge,
+      day,
+    });
   } catch (err) {
     console.error("❌ Challenge fetch error:", err);
     return res.status(500).json({ message: "Failed to fetch challenge" });
   }
 });
+
 
 /**
  * POST /api/challenge

@@ -205,5 +205,29 @@ router.get("/:dayNumber", auth, async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+/**
+ * DELETE /api/challenge-day
+ * מאפס את כל ימי האתגר (Restart)
+ */
+router.delete("/", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const challenge = await Challenge.findOne({ user: userId });
+    if (!challenge) {
+      return res.status(404).json({ message: "No active challenge found" });
+    }
+
+    // מוחק את כל הימים של האתגר
+    await ChallengeDay.deleteMany({
+      challenge: challenge._id,
+    });
+
+    return res.json({ message: "Challenge days reset" });
+  } catch (err) {
+    console.error("Failed to reset challenge days", err);
+    return res.status(500).json({ message: "Failed to reset challenge days" });
+  }
+});
 
 module.exports = router;

@@ -5,14 +5,18 @@ const FavoritesContext = createContext(null);
 
 export function FavoritesProvider({ children }) {
   // נשמר גם בלוקאל סטורג' כדי שלא ייעלם ברענון (לא חובה, אבל לא סותר דרישות)
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem("favorites");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const userId = localStorage.getItem("userId"); // או איך שאת שומרת
 
+const storageKey = userId ? `favorites_${userId}` : "favorites_guest";
+
+const [favorites, setFavorites] = useState(() => {
+  const saved = localStorage.getItem(storageKey);
+  return saved ? JSON.parse(saved) : [];
+});
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
+  localStorage.setItem(storageKey, JSON.stringify(favorites));
+}, [favorites, storageKey]);
+
 
   // item צריך להכיל לפחות id ייחודי (או משהו קבוע כמו idMeal)
   const isFavorite = (id) => favorites.some((x) => x.id === id);

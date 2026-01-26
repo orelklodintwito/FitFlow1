@@ -9,26 +9,37 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
   const [url, setUrl] = useState(null);
   const [loadingAdd, setLoadingAdd] = useState(false);
   const [foods, setFoods] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const searchFood = async () => {
-    if (!query.trim()) return;
+ const searchFood = async () => {
+  if (!query.trim()) return;
 
-    const apiUrl =
-      "https://corsproxy.io/?" +
-      encodeURIComponent(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`
-      );
+  const apiUrl =
+    "https://corsproxy.io/?" +
+    encodeURIComponent(
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`
+    );
 
-    try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      setFoods(data.products || []);
-      setUrl(apiUrl);
-    } catch (err) {
-      console.error("Failed to fetch foods", err);
-      setFoods([]);
-    }
-  };
+  try {
+    setLoadingSearch(true);
+    setHasSearched(false);   // ⬅️ חשוב
+    setFoods([]);
+
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+
+    setFoods(data.products || []);
+    setUrl(apiUrl);
+  } catch (err) {
+    console.error("Failed to fetch foods", err);
+    setFoods([]);
+  } finally {
+    setLoadingSearch(false);
+    setHasSearched(true);    // ⬅️ חשוב
+  }
+};
+
 
   const handleAddFood = async (item) => {
     try {
@@ -69,10 +80,14 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
         <button className="modal-btn" onClick={searchFood}>
           Search
         </button>
+        {loadingSearch && (
+          <p className="loading-text">🔄 Searching food data…</p>
+        )}
 
-        {foods.length === 0 && url && !loadingAdd && (
+        {hasSearched && !loadingSearch && foods.length === 0 && (
           <p className="empty-text">No results</p>
         )}
+
 
         <div className="modal-results">
           {foods.map((item) => (
