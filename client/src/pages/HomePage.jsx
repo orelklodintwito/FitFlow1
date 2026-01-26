@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import "../styles/components.css";
 import { useNavigate } from "react-router-dom";
+import PageState from "../components/PageState";
+
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
 
@@ -32,6 +34,17 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
     progressPercent,
     challengeTitle,
   } = useHomeDashboard(meals);
+  /* ============================== */
+  /* PAGE STATE (for testing / UX) */
+  /* ============================== */
+  let pageStatus = "ready";
+
+  if (!meals) {
+    pageStatus = "loading";
+  } else if (!allMeals || allMeals.length === 0) {
+  pageStatus = "empty";
+}
+
 
   /* ============================== */
   /* FAVORITES */
@@ -89,6 +102,14 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
     openFoodSearch(chosenMeal);
     setChosenMeal(null);
   };
+    if (pageStatus !== "ready") {
+    return (
+      <PageState
+        status={pageStatus}
+        emptyText="No meals logged yet today."
+      />
+    );
+  }
 
   return (
     <div className={`home-full-bg ${mode}`}>

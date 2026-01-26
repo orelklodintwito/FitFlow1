@@ -69,21 +69,50 @@ function ChallengePage({ meals }) {
     refreshToday,
     loadWorkouts,
   } = c;
+  /* ============================== */
+  /* PAGE STATE (testing / UX) */
+  /* ============================== */
+  let pageStatus = "ready";
 
-if (loading) {
-  return (
-    <div className="challenge-page" style={{ "--bg-image": `url(${bgImage})` }}>
-      <div className="challenge-container">
-        <div className="dashboard-card">
-          <h2>Loading challenge…</h2>
-          <p className="small-text">
-            If this stays stuck, it’s probably an API/Auth issue.
-          </p>
+  if (loading) {
+    pageStatus = "loading";
+  } else if (!step) {
+    pageStatus = "error";
+  } else if (step === "active" && !rules) {
+    pageStatus = "error";
+  }
+
+  if (pageStatus !== "ready") {
+    return (
+      <div
+        className="challenge-page"
+        style={{ "--bg-image": `url(${bgImage})` }}
+      >
+        <div className="challenge-container">
+          <div className="dashboard-card">
+            {pageStatus === "loading" && (
+              <>
+                <h2>Loading challenge…</h2>
+                <p className="small-text">
+                  If this stays stuck, it’s probably an API/Auth issue.
+                </p>
+              </>
+            )}
+
+            {pageStatus === "error" && (
+              <>
+                <h2>Something went wrong</h2>
+                <p className="small-text">
+                  Could not load challenge data. Please refresh or log in again.
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+
 
   return (
     <div

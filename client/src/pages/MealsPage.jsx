@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import PageState from "../components/PageState";
 
 import EditFoodModal from "../modals/EditFoodModal.jsx";
 import "../styles/meals.css";
@@ -146,6 +147,29 @@ const handleApiAdd = () => {
   );
 
 
+  /* ===================== PAGE STATE ===================== */
+  let pageStatus = "ready";
+
+  if (!meals) {
+    pageStatus = "loading";
+  } else {
+    const totalItems = Object.values(filteredMeals).flat().length;
+    if (totalItems === 0) {
+      pageStatus = "empty";
+    }
+  }
+  if (pageStatus !== "ready") {
+    return (
+      <PageState
+        status={pageStatus}
+        emptyText={
+          dateFromChallenge
+            ? "No meals for this challenge day."
+            : "No meals found for this period."
+        }
+      />
+    );
+  }
 
   /* ===================== RENDER ===================== */
   return (
