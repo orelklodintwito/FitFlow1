@@ -22,7 +22,8 @@ const ApiPage = () => {
   const dispatch = useDispatch();
 
   // ⭐ CUSTOM HOOK – API
-  const url = `https://fitflow1.onrender.com/api/external/meals?search=${query}`;
+  const url = `/api/external/meals?search=${query}`;
+
   const { data, loading, error } = useApi(url);
 
   const meals = data?.meals || [];
@@ -39,18 +40,7 @@ const ApiPage = () => {
         <h1 className="api-title">Healthy Recipes</h1>
         <p className="api-sub">Live results from TheMealDB API</p>
 
-        {/* ⭐ REDUX UI – REQUIRED (Part 4) */}
-        <button
-          onClick={() => dispatch(toggleMode())}
-          style={{
-            marginBottom: "20px",
-            padding: "10px 20px",
-            borderRadius: "20px",
-            cursor: "pointer",
-          }}
-        >
-          Switch to {mode === "dark" ? "Light" : "Dark"} Mode
-        </button>
+        
 
         {/* SEARCH */}
         <form className="search-area" onSubmit={handleSearch}>
