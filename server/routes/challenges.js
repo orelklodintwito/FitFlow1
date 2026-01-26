@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
-const auth = require("../middleware/auth"); // 🔐 חובה
+const auth = require("../middleware/auth");
 const Challenge = require("../models/Challenge");
 const ChallengeDay = require("../models/ChallengeDay");
 
 /**
  * GET /api/challenge
- * מחזיר את האתגר הפעיל למשתמש (או null)
+ * מחזיר את האתגר הפעיל + היום הנוכחי של המשתמש
  */
 router.get("/", auth, async (req, res) => {
   try {
@@ -29,17 +29,20 @@ router.get("/", auth, async (req, res) => {
 
     let day = await ChallengeDay.findOne({
       challenge: challenge._id,
+      user: userId,
       date: today,
     });
 
-    // אם משום מה אין יום – ניצור (הגנה)
+    // אם אין יום – ניצור
     if (!day) {
       const lastDay = await ChallengeDay.findOne({
         challenge: challenge._id,
+        user: userId,
       }).sort({ dayNumber: -1 });
 
       day = await ChallengeDay.create({
         challenge: challenge._id,
+        user: userId,
         date: today,
         dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
         failed: false,
@@ -56,7 +59,6 @@ router.get("/", auth, async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch challenge" });
   }
 });
-
 
 /**
  * POST /api/challenge
@@ -76,8 +78,8 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Missing challenge type" });
     }
 
-    // 🔢 חישוב מספר ימים לפי סוג האתגר
-    let resolvedDurationDays =
+    // חישוב משך האתגר
+    const resolvedDurationDays =
       type === "custom"
         ? Number(durationDays)
         : type === "14days"
@@ -92,18 +94,21 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Invalid challenge type" });
     }
 
-    // 🧹 מחיקת אתגר קודם + כל הימים שלו
+    // מחיקת אתגר קודם + ימים שלו
     const existing = await Challenge.findOne({ user: userId });
     if (existing) {
-      await ChallengeDay.deleteMany({ challenge: existing._id });
+      await ChallengeDay.deleteMany({
+        challenge: existing._id,
+        user: userId,
+      });
       await existing.deleteOne();
     }
 
-    // 📅 תאריך התחלה (00:00)
+    // 📅 תאריך התחלה
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 🆕 יצירת אתגר
+    // יצירת אתגר
     const challenge = await Challenge.create({
       user: userId,
       type,
@@ -113,13 +118,13 @@ router.post("/", auth, async (req, res) => {
       startDate: today,
     });
 
-    // 📆 יצירת יום 1
-   await ChallengeDay.create({
-  challenge: challenge._id,
-  dayNumber: 1,
-  date: today,
-});
-
+    // יצירת יום 1
+    await ChallengeDay.create({
+      challenge: challenge._id,
+      user: userId,
+      dayNumber: 1,
+      date: today,
+    });
 
     return res.status(201).json(challenge);
   } catch (err) {
@@ -145,7 +150,11 @@ router.delete("/", auth, async (req, res) => {
       return res.status(404).json({ message: "No active challenge" });
     }
 
-    await ChallengeDay.deleteMany({ challenge: challenge._id });
+    await ChallengeDay.deleteMany({
+      challenge: challenge._id,
+      user: userId,
+    });
+
     await challenge.deleteOne();
 
     return res.json({ message: "Challenge reset successfully" });

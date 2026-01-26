@@ -13,12 +13,20 @@ function SettingsPage({ setIsLoggedIn }) {
 const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("userMetrics"));
+    const profile = JSON.parse(localStorage.getItem("userProfile"));
+    if (!profile) return;
+
+    const key = profile.id
+      ? `userMetrics_${profile.id}`
+      : `userMetrics_${profile.email}`;
+
+    const saved = JSON.parse(localStorage.getItem(key));
     if (saved) {
       setHeight(saved.height);
       setWeight(saved.weight);
     }
   }, []);
+
     useEffect(() => {
       const savedProfile = JSON.parse(
         localStorage.getItem("userProfile")
@@ -54,6 +62,7 @@ const [userProfile, setUserProfile] = useState(null);
   /* CHALLENGE INFO */
   /* ============================== */
   const [challenge, setChallenge] = useState(null);
+  const [loadingChallenge, setLoadingChallenge] = useState(true);
 
   useEffect(() => {
   const loadChallenge = async () => {
@@ -68,11 +77,14 @@ const [userProfile, setUserProfile] = useState(null);
     } catch (err) {
       console.error("Failed to load challenge", err);
       setChallenge(null);
+    } finally {
+      setLoadingChallenge(false);
     }
   };
 
   loadChallenge();
 }, []);
+
 
 
   /* ============================== */
@@ -83,6 +95,9 @@ const handleLogout = () => {
   if (!ok) return;
 
   localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("userProfile");
+window.dispatchEvent(new Event("user-changed"));
+
   setIsLoggedIn(false);
 };
 
@@ -101,6 +116,10 @@ const handleLogout = () => {
       {/* ================= PERSONAL INFO ================= */}
       <div className="dashboard-card">
         <h2>Personal Information</h2>
+        {loadingChallenge && (
+          <p className="small-text">Loading challenge...</p>
+        )}
+
         <p className="small-text">Your basic profile details</p>
 
         <p>
@@ -136,27 +155,24 @@ const handleLogout = () => {
         <h2>Goals & Challenges</h2>
 
         {/* ===== NO CHALLENGE ===== */}
-        {!challenge && (
-          <>
-            <p className="small-text">No active challenge</p>
+       {/* ===== NO CHALLENGE ===== */}
+{!loadingChallenge && !challenge && (
+  <>
+    <p className="small-text">No active challenge</p>
+    <p className="small-text">
+      Start a challenge to get daily goals and progress tracking.
+    </p>
 
-            {customSuggested ? (
-              <div className="small-text" style={{ marginTop: "10px" }}>
-                <p><strong>Suggested goals for you:</strong></p>
-                <p>🥗 Calories: ~{customSuggested.calories} kcal/day</p>
-                <p>🥩 Protein: ~{customSuggested.protein} g/day</p>
-                <p>💧 Water: {customSuggested.water} L/day</p>
-                <p>👣 Steps: {customSuggested.steps}/day</p>
-                <p>🏋️ Workout: {customSuggested.workouts} × {customSuggested.workoutMin} min</p>
-                <p>📖 Reading: ≥ {customSuggested.reading} pages</p>
-              </div>
-            ) : (
-              <p className="small-text">
-                Add height & weight to get personalized recommendations.
-              </p>
-            )}
-          </>
-        )}
+    <button
+      className="btn-green"
+      style={{ marginTop: "10px" }}
+      onClick={() => navigate("/challenge")}
+    >
+      Choose a Challenge →
+    </button>
+  </>
+)}
+
 
         {/* ===== 14 DAYS ===== */}
         {challenge?.type === "14days" && (

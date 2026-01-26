@@ -4,18 +4,35 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 const FavoritesContext = createContext(null);
 
 export function FavoritesProvider({ children }) {
-  // נשמר גם בלוקאל סטורג' כדי שלא ייעלם ברענון (לא חובה, אבל לא סותר דרישות)
-  const userId = localStorage.getItem("userId"); // או איך שאת שומרת
+  
+const [userId, setUserId] = useState(() => {
+  const profile = JSON.parse(localStorage.getItem("userProfile"));
+  return profile?.id || null;
+});
+useEffect(() => {
+  const syncUser = () => {
+    const profile = JSON.parse(localStorage.getItem("userProfile"));
+    setUserId(profile?.id || null);
+  };
+
+  window.addEventListener("storage", syncUser);
+  syncUser(); // ריצה מיידית
+
+  return () => window.removeEventListener("storage", syncUser);
+}, []);
+
 
 const storageKey = userId ? `favorites_${userId}` : "favorites_guest";
 
-const [favorites, setFavorites] = useState(() => {
-  const saved = localStorage.getItem(storageKey);
-  return saved ? JSON.parse(saved) : [];
-});
+const [favorites, setFavorites] = useState([]);
+
   useEffect(() => {
   localStorage.setItem(storageKey, JSON.stringify(favorites));
 }, [favorites, storageKey]);
+useEffect(() => {
+  const saved = localStorage.getItem(storageKey);
+  setFavorites(saved ? JSON.parse(saved) : []);
+}, [storageKey]);
 
 
   // item צריך להכיל לפחות id ייחודי (או משהו קבוע כמו idMeal)

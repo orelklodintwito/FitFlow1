@@ -74,21 +74,22 @@ function Signup({ setShowSignup, setIsLoggedIn }) {
       }
 
       localStorage.setItem(
-        "userMetrics",
-        JSON.stringify({
-          height: Number(height),
-          weight: Number(weight),
-        })
-      );
+  "userProfile",
+  JSON.stringify({
+    id: data.userId,
+    name,
+    email,
+    age: Number(age),
+  })
+);
+localStorage.setItem(
+  `userMetrics_${data.userId}`,
+  JSON.stringify({
+    height: Number(height),
+    weight: Number(weight),
+  })
+);
 
-      localStorage.setItem(
-        "userProfile",
-        JSON.stringify({
-          name,
-          email,
-          age: Number(age),
-        })
-      );
 
       setIsLoggedIn(true);
     } catch (err) {

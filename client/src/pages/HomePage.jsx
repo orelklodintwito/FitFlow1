@@ -45,12 +45,20 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
   const [weight, setWeight] = useState(null);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("userMetrics"));
-    if (saved) {
-      setHeight(saved.height);
-      setWeight(saved.weight);
-    }
-  }, []);
+  const profile = JSON.parse(localStorage.getItem("userProfile"));
+  if (!profile) return;
+
+  const key = profile.id
+    ? `userMetrics_${profile.id}`
+    : `userMetrics_${profile.email}`;
+
+  const saved = JSON.parse(localStorage.getItem(key));
+  if (saved) {
+    setHeight(saved.height);
+    setWeight(saved.weight);
+  }
+}, []);
+
 
   const bmi =
     height && weight

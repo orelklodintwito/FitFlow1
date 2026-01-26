@@ -8,29 +8,48 @@ function EditProfilePage() {
   const [weight, setWeight] = useState("");
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("userMetrics"));
-    if (saved) {
-      setHeight(saved.height || "");
-      setWeight(saved.weight || "");
-    }
-  }, []);
+      const profile = JSON.parse(localStorage.getItem("userProfile"));
+      if (!profile) return;
 
-  const handleSave = () => {
-    if (!height || !weight) {
-      alert("Please enter both height and weight");
-      return;
-    }
+      const key = profile.id
+        ? `userMetrics_${profile.id}`
+        : `userMetrics_${profile.email}`;
 
-    localStorage.setItem(
-      "userMetrics",
-      JSON.stringify({
-        height: Number(height),
-        weight: Number(weight),
-      })
-    );
+      const saved = JSON.parse(localStorage.getItem(key));
+      if (saved) {
+        setHeight(saved.height || "");
+        setWeight(saved.weight || "");
+      }
+    }, []);
 
-    navigate("/profile");
-  };
+
+ const handleSave = () => {
+  if (!height || !weight) {
+    alert("Please enter both height and weight");
+    return;
+  }
+
+  const profile = JSON.parse(localStorage.getItem("userProfile"));
+  if (!profile) {
+    alert("User not found");
+    return;
+  }
+
+  const key = profile.id
+    ? `userMetrics_${profile.id}`
+    : `userMetrics_${profile.email}`;
+
+  localStorage.setItem(
+    key,
+    JSON.stringify({
+      height: Number(height),
+      weight: Number(weight),
+    })
+  );
+
+  navigate("/profile");
+};
+
 
   return (
     <div className="dashboard">

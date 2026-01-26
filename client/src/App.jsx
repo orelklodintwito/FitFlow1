@@ -144,7 +144,20 @@ function App() {
   /* ====================================================== */
   return (
     <div className="app-container">
-      <Header setIsLoggedIn={setIsLoggedIn} />
+      <Header
+  onLogout={() => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+
+    // 🔥 איפוס מלא של נתוני משתמש
+    setMeals({
+      breakfast: [],
+      lunch: [],
+      dinner: [],
+    });
+  }}
+/>
+
 
       <main className="main-content">
         <Routes>

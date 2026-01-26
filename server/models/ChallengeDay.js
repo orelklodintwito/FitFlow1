@@ -2,6 +2,13 @@ const mongoose = require("mongoose");
 
 const challengeDaySchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
     challenge: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Challenge",
@@ -29,20 +36,20 @@ const challengeDaySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    steps: {
-  type: Number,
-  default: 0,
-},
 
+    steps: {
+      type: Number,
+      default: 0,
+    },
 
     workouts: [
       {
         type: {
-          type: String, // Running, Strength, Yoga
+          type: String,
           required: true,
         },
         duration: {
-          type: Number, // minutes
+          type: Number,
           required: true,
         },
         calories: {
@@ -62,19 +69,21 @@ const challengeDaySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    waterCompleted: {
-  type: Boolean,
-  default: false,
-},
-stepsCompleted: {
-  type: Boolean,
-  default: false,
-},
 
-readingCompleted: {
-  type: Boolean,
-  default: false,
-},
+    waterCompleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    stepsCompleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    readingCompleted: {
+      type: Boolean,
+      default: false,
+    },
 
     completed: {
       type: Boolean,

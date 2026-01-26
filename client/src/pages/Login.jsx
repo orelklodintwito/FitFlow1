@@ -48,8 +48,23 @@ function Login({ setShowSignup, setIsLoggedIn }) {
       }
 
       localStorage.setItem("token", data.token);
-      setIsLoggedIn(true);
-      navigate("/challenge");
+
+        // ✅ שמירת פרטי משתמש – כדי ש-SettingsPage ידע להציג
+        localStorage.setItem(
+          "userProfile",
+          JSON.stringify({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+          })
+        );
+        window.dispatchEvent(new Event("user-changed"));
+
+        // ⛔ לא נוגעים ב-userMetrics כאן (אין נתונים מהשרת)
+
+        setIsLoggedIn(true);
+        navigate("/challenge");
+
     } catch (err) {
       setServerError(
         err.response?.data?.message ||
