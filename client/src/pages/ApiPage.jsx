@@ -22,7 +22,8 @@ const ApiPage = () => {
   const dispatch = useDispatch();
 
   // ⭐ CUSTOM HOOK – API
-  const url = `/api/external/meals?search=${query}`;
+  const url = `https://fitflow1.onrender.com/api/external/meals?search=${query}`;
+
 
   const { data, loading, error } = useApi(url);
 
