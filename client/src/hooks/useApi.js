@@ -1,4 +1,3 @@
-// src/hooks/useApi.js
 import { useEffect, useState } from "react";
 
 export function useApi(url) {
@@ -12,18 +11,22 @@ export function useApi(url) {
     setLoading(true);
     setError(null);
 
-    const BASE_URL =
-  import.meta.env.PROD
-    ? "https://fitflow1.onrender.com"
-    : "";
+    const BASE_URL = import.meta.env.PROD
+      ? "https://fitflow1.onrender.com"
+      : "";
 
-fetch(`${BASE_URL}${url}`)
+    const fullUrl = `${BASE_URL}${url}`;
 
+    // 🔥 לוג קריטי – חייב להופיע בפרודקשן
+    console.log("🔥 useApi fetch:", {
+      PROD: import.meta.env.PROD,
+      fullUrl,
+    });
 
-
+    fetch(fullUrl)
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Network error");
+          throw new Error(`Network error: ${res.status}`);
         }
         return res.json();
       })
@@ -32,6 +35,7 @@ fetch(`${BASE_URL}${url}`)
         setLoading(false);
       })
       .catch((err) => {
+        console.error("❌ useApi error:", err);
         setError(err.message);
         setLoading(false);
       });
