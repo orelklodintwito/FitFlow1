@@ -42,28 +42,34 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
 
 
   const handleAddFood = async (item) => {
+  try {
+    setLoadingAdd(true);
+
+    // ✅ הוספת האוכל – זה הקריטי
+    await addMeal({
+      name: item.product_name || "Unknown",
+      calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
+      protein: item.nutriments?.proteins_100g ?? 0,
+      mealType: meal,
+    });
+
+    // ⚠️ עדכון אתגר – לא מפיל אם נכשל
     try {
-      setLoadingAdd(true);
-
-      await addMeal({
-        name: item.product_name || "Unknown",
-        calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
-        protein: item.nutriments?.proteins_100g ?? 0,
-        mealType: meal,
-      });
-
-      // ⭐ חשוב: עדכון היום באתגר (Nutrition)
       await saveChallengeDay({});
-
-      onSuccess(); // 🔄 ריענון ארוחות
-      onClose();
     } catch (err) {
-      console.error("Failed to add food", err);
-      alert("Failed to add food");
-    } finally {
-      setLoadingAdd(false);
+      console.warn("⚠️ saveChallengeDay failed (food search)", err);
     }
-  };
+
+    onSuccess();
+    onClose();
+  } catch (err) {
+    console.error("Failed to add food", err);
+    alert("Failed to add food");
+  } finally {
+    setLoadingAdd(false);
+  }
+};
+
 
   return (
     <div className="modal-overlay">

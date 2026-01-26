@@ -10,27 +10,33 @@ function EditFoodModal({ food, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
+  try {
+    setLoading(true);
+
+    // ✅ עדכון הארוחה – זה הקריטי
+    await updateMeal(food._id, {
+      name,
+      calories: Number(calories),
+      protein: Number(protein),
+    });
+
+    // ⚠️ עדכון אתגר – לא מפיל אם נכשל
     try {
-      setLoading(true);
-
-      await updateMeal(food._id, {
-        name,
-        calories: Number(calories),
-        protein: Number(protein),
-      });
-
-      // ⭐ חשוב: עדכון היום באתגר (Nutrition) גם בעריכה
       await saveChallengeDay({});
-
-      onSuccess(); // 🔄 ריענון ארוחות
-      onClose();
     } catch (err) {
-      console.error("❌ Failed to update meal", err);
-      alert("Failed to update meal");
-    } finally {
-      setLoading(false);
+      console.warn("⚠️ saveChallengeDay failed (edit)", err);
     }
-  };
+
+    onSuccess();
+    onClose();
+  } catch (err) {
+    console.error("❌ Failed to update meal", err);
+    alert("Failed to update meal");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="modal-overlay">
