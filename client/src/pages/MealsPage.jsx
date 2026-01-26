@@ -144,11 +144,7 @@ const handleApiAdd = () => {
       )}
     </div>
   );
-const handleMealUpdated = async () => {
-  if (onReload) {
-    await onReload(); // ⬅️ קריטי
-  }
-};
+
 
 
   /* ===================== RENDER ===================== */
@@ -196,12 +192,15 @@ const handleMealUpdated = async () => {
 
       {/* EDIT MODAL */}
       {editing.open && (
-        <EditFoodModal
-          food={editing.food}
-          onClose={() => setEditing({ open: false, food: null })}
-          onSuccess={handleMealUpdated}
+       <EditFoodModal
+  food={editing.food}
+  onClose={() => {
+    setEditing({ open: false, food: null });
+    onReload?.();   // 👈 בדיוק כמו מחיקה
+  }}
+  onSuccess={() => {}}
+/>
 
-        />
       )}
     </div>
   );
