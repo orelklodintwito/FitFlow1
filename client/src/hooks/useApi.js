@@ -11,11 +11,13 @@ export function useApi(url) {
     setLoading(true);
     setError(null);
 
-    const BASE_URL = import.meta.env.PROD
-      ? "https://fitflow1.onrender.com"
-      : "";
+// אם אנחנו בפרודקשן - משתמשים בכתובת של רנדר. 
+// אם אנחנו בפיתוח - משתמשים בשרת המקומי (למשל localhost:5000)
+const BASE_URL = import.meta.env.PROD
+  ? "https://fitflow1.onrender.com"
+  : "http://localhost:5000"; 
 
-    const fullUrl = `${BASE_URL}${url}`;
+const fullUrl = `${BASE_URL}${url}`;
 
     // 🔥 לוג קריטי – חייב להופיע בפרודקשן
     console.log("🔥 useApi fetch:", {
