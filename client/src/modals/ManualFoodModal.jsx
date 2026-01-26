@@ -10,30 +10,36 @@ function ManualFoodModal({ meal, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!foodName || !calories) return;
+  if (!foodName || !calories) return;
 
+  try {
+    setLoading(true);
+
+    // שמירת הארוחה – זה העיקר
+    await addMeal({
+      name: foodName,
+      calories: Number(calories),
+      protein: Number(protein || 0),
+      mealType: meal,
+    });
+
+    // עדכון אתגר – לא מפיל אם נכשל
     try {
-      setLoading(true);
-
-      await addMeal({
-        name: foodName,
-        calories: Number(calories),
-        protein: Number(protein || 0),
-        mealType: meal,
-      });
-
-      // ⭐ חשוב: עדכון היום באתגר (Nutrition)
       await saveChallengeDay({});
-
-      onSuccess(); // 🔄 ריענון ארוחות
-      onClose();
     } catch (err) {
-      console.error("❌ Failed to add meal", err);
-      alert("Failed to save meal");
-    } finally {
-      setLoading(false);
+      console.warn("⚠️ saveChallengeDay failed", err);
     }
-  };
+
+    onSuccess();
+    onClose();
+  } catch (err) {
+    console.error("❌ Failed to add meal", err);
+    alert("Failed to save meal");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="modal-overlay">
