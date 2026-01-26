@@ -54,10 +54,16 @@ router.get("/", auth, async (req, res) => {
 // עריכת ארוחה – רק של המשתמש
 router.put("/:id", auth, async (req, res) => {
   try {
+    const { name, calories, protein } = req.body;
+
     const meal = await Meal.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id }, // ✅ תואם auth.js
-      req.body,
-      { new: true }
+      { _id: req.params.id, user: req.user.id },
+      {
+        name,
+        calories: Number(calories),
+        protein: Number(protein),
+      },
+      { new: true, runValidators: true } // 🔥 חשוב
     );
 
     if (!meal) {
@@ -67,9 +73,10 @@ router.put("/:id", auth, async (req, res) => {
     res.status(200).json(meal);
   } catch (err) {
     console.error("❌ UPDATE MEAL ERROR:", err);
-    res.status(500).json({ message: "Failed to update meal" });
+    res.status(500).json({ message: err.message });
   }
 });
+
 
 /* ===================== DELETE ===================== */
 // DELETE /api/meals/:id
