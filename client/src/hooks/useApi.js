@@ -12,9 +12,8 @@ export function useApi(url) {
     setLoading(true);
     setError(null);
 
-    fetch(url, {
-  credentials: "include",
-})
+    fetch(url, { credentials: "omit" })
+
 
       .then((res) => {
         if (!res.ok) {
