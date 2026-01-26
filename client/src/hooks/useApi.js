@@ -12,7 +12,10 @@ export function useApi(url) {
     setLoading(true);
     setError(null);
 
-    fetch(url)
+    fetch(url, {
+  credentials: "include",
+})
+
       .then((res) => {
         if (!res.ok) {
           throw new Error("Network error");
