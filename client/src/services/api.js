@@ -1,8 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://fitflow1.onrender.com/api",
 });
+
 
 // הוספת token אוטומטית לכל בקשה
 api.interceptors.request.use((config) => {
