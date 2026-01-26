@@ -144,11 +144,12 @@ const handleApiAdd = () => {
       )}
     </div>
   );
-const handleMealUpdated = () => {
+const handleMealUpdated = async () => {
   if (onReload) {
-    onReload(); // refetch מהשרת
+    await onReload(); // ⬅️ קריטי
   }
 };
+
 
   /* ===================== RENDER ===================== */
   return (

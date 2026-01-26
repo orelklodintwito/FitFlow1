@@ -10,41 +10,40 @@ function EditFoodModal({ food, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    // 1️⃣ עדכון הארוחה
-    await updateMeal(food._id, {
-      name,
-      calories: Number(calories),
-      protein: Number(protein),
-    });
-  } catch (err) {
-    console.error("❌ updateMeal failed", err);
-    alert("Failed to update meal");
-    setLoading(false);
-    return;
-  }
+    let res;
 
-  // 2️⃣ עדכון אתגר – לא משפיע על UI
-  try {
-    await saveChallengeDay({});
-  } catch (err) {
-    console.warn("⚠️ saveChallengeDay failed (edit)", err);
-  }
+    // 1️⃣ עדכון הארוחה (קריטי)
+    try {
+      res = await updateMeal(food._id, {
+        name,
+        calories: Number(calories),
+        protein: Number(protein),
+      });
+    } catch (err) {
+      console.error("❌ updateMeal failed", err);
+      alert("Failed to update meal");
+      setLoading(false);
+      return;
+    }
 
-  // 3️⃣ UI – מבודד משגיאות
-  try {
-    onSuccess?.(res.data);
+    // 2️⃣ עדכון אתגר – לא חוסם UI
+    try {
+      await saveChallengeDay({});
+    } catch (err) {
+      console.warn("⚠️ saveChallengeDay failed (edit)", err);
+    }
+
+    // 3️⃣ סגירת מודאל
     onClose?.();
-  } catch (err) {
-    console.warn("⚠️ UI callback failed", err);
-  }
 
-  setLoading(false);
-};
+    // 4️⃣ עדכון ה־UI למעלה (MealsPage)
+    onSuccess?.(res.data);
 
-
+    // 5️⃣ סיום
+    setLoading(false);
+  };
 
   return (
     <div className="modal-overlay">
