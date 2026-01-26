@@ -35,7 +35,7 @@ function EditFoodModal({ food, onClose, onSuccess }) {
 
   // 3️⃣ UI – מבודד משגיאות
   try {
-    onSuccess?.();
+    onSuccess?.(res.data);
     onClose?.();
   } catch (err) {
     console.warn("⚠️ UI callback failed", err);
