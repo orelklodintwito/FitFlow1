@@ -140,3 +140,15 @@
   color: #041019;
   border-color: var(--pastel-blue);
 }
+.theme-toggle {
+  width: auto;
+  min-width: unset;
+  flex: 0 0 auto;
+
+  padding: 8px 10px;
+  border-radius: 50%;
+}
+/* ❌ hide theme toggle inside page area */
+.page-wrapper .theme-toggle {
+  display: none !important;
+}
