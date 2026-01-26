@@ -10,9 +10,11 @@ const auth = require("../middleware/auth");
 router.post("/", auth, async (req, res) => {
   try {
     const meal = await Meal.create({
-      ...req.body,
-      user: req.user.id, // ✅ תואם auth.js
-    });
+  ...req.body,
+  calories: Number(req.body.calories),
+  user: req.user.id,
+});
+
 
     res.status(201).json(meal);
   } catch (err) {

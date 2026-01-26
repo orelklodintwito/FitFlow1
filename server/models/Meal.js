@@ -20,7 +20,7 @@ protein: {
 mealType: {
   type: String,
   enum: ["breakfast", "lunch", "dinner"],
-  required: true,
+  default: "lunch",
 },
 challengeDay: {
   type: mongoose.Schema.Types.ObjectId,
