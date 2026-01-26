@@ -192,16 +192,15 @@ const handleApiAdd = () => {
 
       {/* EDIT MODAL */}
       {editing.open && (
-       <EditFoodModal
-  food={editing.food}
-  onClose={() => {
-    setEditing({ open: false, food: null });
-    onReload?.();   // 👈 בדיוק כמו מחיקה
-  }}
-  onSuccess={() => {}}
-/>
+  <EditFoodModal
+    food={editing.food}
+    onClose={() => {
+      setEditing({ open: false, food: null });
+      window.location.reload(); // 💥 ריפרש מלא – כמו Delete
+    }}
+  />
+)}
 
-      )}
     </div>
   );
 }
