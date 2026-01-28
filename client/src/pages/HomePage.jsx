@@ -34,15 +34,17 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
     progressPercent,
     challengeTitle,
   } = useHomeDashboard(meals);
-  /* ============================== */
-  /* PAGE STATE (for testing / UX) */
-  /* ============================== */
-  let pageStatus = "ready";
+ /* ============================== */
+/* PAGE STATE (Dashboard) */
+/* ============================== */
+let pageStatus = "ready";
 
-  if (!meals) {
-    pageStatus = "loading";
-  } else if (!allMeals || allMeals.length === 0) {
-  pageStatus = "empty";
+if (!meals) {
+  pageStatus = "loading";
+}
+
+if (pageStatus === "loading") {
+  return <PageState status="loading" />;
 }
 
 
@@ -102,14 +104,6 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
     openFoodSearch(chosenMeal);
     setChosenMeal(null);
   };
-    if (pageStatus !== "ready") {
-    return (
-      <PageState
-        status={pageStatus}
-        emptyText="No meals logged yet today."
-      />
-    );
-  }
 
   return (
     <div className={`home-full-bg ${mode}`}>
@@ -187,6 +181,10 @@ function HomePage({ meals, openFoodSearch, openManualFood }) {
           <div className="dashboard-card summary-card">
             <h2>Today's Summary</h2>
             <p>🍽 Meals logged: {allMeals.length}</p>
+{allMeals.length === 0 && (
+  <p className="small-text">No meals logged yet today</p>
+)}
+
             <p>🔥 Calories consumed: {totalCalories}</p>
             <p>🥩 Protein: {totalProtein} g</p>
           </div>
