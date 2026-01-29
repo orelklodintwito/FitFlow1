@@ -14,39 +14,31 @@ const CHALLENGE_RULES = require("../challenges/challengeRules");
 router.get("/today", auth, async (req, res) => {
   try {
     const userId = req.user.id;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: "Invalid user id" });
-    }
-
-    const challenge = await Challenge.findOne({ user: userId });
-    if (!challenge) return res.json(null);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let day = await ChallengeDay.findOne({
-      challenge: challenge._id,
+    let todayDay = await ChallengeDay.findOne({
+      user: userId,
       date: today,
     });
 
-    if (!day) {
+    if (!todayDay) {
       const lastDay = await ChallengeDay.findOne({
-        challenge: challenge._id,
-      }).sort({ dayNumber: -1 });
+        user: userId,
+      }).sort({ date: -1 });
 
-      day = await ChallengeDay.create({
-        challenge: challenge._id,
+      todayDay = await ChallengeDay.create({
+        user: userId,
         date: today,
+        challenge: lastDay?.challenge,
         dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
-        failed: false,
-        completed: false,
       });
     }
 
-    return res.json(day);
+    res.json(todayDay);
   } catch (err) {
-    console.error("Error fetching today challenge day:", err);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Error getting today challenge day" });
   }
 });
 
