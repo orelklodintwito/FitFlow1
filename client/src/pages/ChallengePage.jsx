@@ -69,6 +69,11 @@ function ChallengePage({ meals }) {
     refreshToday,
     loadWorkouts,
   } = c;
+  const isReadonlyDay =
+  selectedDay !== null && selectedDay !== today?.dayNumber;
+
+const dayToShow = isReadonlyDay ? c.viewedDay : today;
+
   /* ============================== */
   /* PAGE STATE (testing / UX) */
   /* ============================== */
@@ -477,14 +482,16 @@ function ChallengePage({ meals }) {
         <EditWorkoutModal
           workout={editingWorkout}
           onClose={() => setEditingWorkout(null)}
-          onSuccess={loadWorkouts}
+          onSuccess={() => loadWorkouts(dayToShow?._id)}
+
         />
       )}
 
       {showWorkoutModal && (
         <AddWorkoutModal
           onClose={() => setShowWorkoutModal(false)}
-          onSuccess={loadWorkouts}
+          onSuccess={() => loadWorkouts(dayToShow?._id)}
+
 
         />
       )}

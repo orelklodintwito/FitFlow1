@@ -63,24 +63,35 @@ router.post("/", auth, async (req, res) => {
 router.get("/", auth, async (req, res) => {
   try {
     const userId = req.user.id;
+    const { challengeDayId } = req.query;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    let query = { user: userId };
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    if (challengeDayId) {
+      // 🔹 מצב: מסתכלים על יום בצ'אלנג'
+      query.challengeDay = challengeDayId;
+    } else {
+      // 🔹 fallback: היום האמיתי
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const workouts = await Workout.find({
-      user: userId,
-      createdAt: { $gte: today, $lt: tomorrow },
-    }).sort({ createdAt: -1 });
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
 
-    res.status(200).json(workouts);
+      query.createdAt = {
+        $gte: today,
+        $lt: tomorrow,
+      };
+    }
+
+    const workouts = await Workout.find(query).sort({ createdAt: -1 });
+
+    res.json(workouts);
   } catch (err) {
-    console.error("❌ FETCH WORKOUTS ERROR:", err);
-    res.status(500).json({ message: "Failed to fetch workouts" });
+    res.status(500).json({ message: "Error fetching workouts" });
   }
 });
+
 
 /* ===================== UPDATE ===================== */
 // PUT /api/workouts/:id

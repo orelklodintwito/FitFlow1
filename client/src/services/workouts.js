@@ -7,9 +7,15 @@ export const addWorkout = (data) => {
 };
 
 // שליפת אימונים (ליום הנוכחי)
-export const getWorkouts = () => {
+export const getWorkouts = (challengeDayId) => {
+  if (challengeDayId) {
+    return api.get(`/workouts?challengeDayId=${challengeDayId}`);
+  }
+
+  // fallback – היום האמיתי
   return api.get("/workouts");
 };
+
 
 // מחיקת אימון
 export const deleteWorkout = (id) => {

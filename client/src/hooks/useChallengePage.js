@@ -62,14 +62,15 @@ export function useChallengePage(meals) {
       : rules?.durationDays;
 
   /* ================= HELPERS ================= */
-  const loadWorkouts = async () => {
-    try {
-      const res = await getWorkouts();
-      setWorkouts(res.data || []);
-    } catch (err) {
-      console.error("Failed to load workouts", err);
-    }
-  };
+const loadWorkouts = async (challengeDayId) => {
+  try {
+    const res = await getWorkouts(challengeDayId);
+    setWorkouts(res.data || []);
+  } catch (err) {
+    console.error("Failed to load workouts", err);
+  }
+};
+
 
   const refreshToday = async () => {
     if (viewingPastDay) return;
@@ -95,7 +96,7 @@ export function useChallengePage(meals) {
         setDaySteps("");
       }
 
-      await loadWorkouts();
+      await loadWorkouts(res.data?._id);
     } catch {
       setToday(null);
     }
@@ -201,7 +202,9 @@ export function useChallengePage(meals) {
 
     try {
       await deleteWorkout(id);
-      loadWorkouts();
+await loadWorkouts(viewedDay?._id || today?._id);
+
+
     } catch {
       alert("Failed to delete workout");
     }
@@ -240,7 +243,11 @@ export function useChallengePage(meals) {
     const res = await getChallengeDayByNumber(dayNumber);
 
     setSelectedDay(dayNumber);
-    setViewedDay(res.data); // 👈 שומרת יום לצפייה בלבד
+setViewedDay(res.data);
+setViewingPastDay(dayNumber !== today?.dayNumber);
+await loadWorkouts(res.data?._id);
+
+
 
     setDayWater(res.data?.waterLiters != null ? String(res.data.waterLiters) : "");
     setDayReading(res.data?.readingPages != null ? String(res.data.readingPages) : "");
@@ -381,6 +388,8 @@ const taskStatus = [
     workouts,
     editingWorkout,
     showWorkoutModal,
+    viewedDay,
+
 
     // inputs
     durationDays,
