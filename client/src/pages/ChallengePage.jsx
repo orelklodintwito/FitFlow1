@@ -305,11 +305,7 @@ function ChallengePage({ meals }) {
                      <span
                       className="nutrition-view"
                       onClick={() =>
-                        navigate("/form", {
-                          state: {
-                            challengeDayId: today?._id,
-                          },
-                        })
+                        navigate("/form", { state: { date: dayToShow?.date, challengeDayId: dayToShow?._id}, })
                       }
                     >
                       View →
