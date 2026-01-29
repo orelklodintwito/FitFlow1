@@ -12,9 +12,21 @@ The app allows users to:
 
 ---
 
+## 🌐 Live Deployment
+
+This project is deployed and can be tested online:
+
+Live App (Client): https://fitflow1-1.onrender.com  
+Server API: https://fitflow1.onrender.com  
+
+Note: The project is fully functional in production.  
+Running locally is optional and provided below for development purposes.
+
+---
+
 ## 🧱 Tech Stack
 
-### Client
+Client:
 - React
 - React Router
 - Redux Toolkit
@@ -22,7 +34,7 @@ The app allows users to:
 - Custom Hooks
 - CSS (custom styling)
 
-### Server
+Server:
 - Node.js
 - Express
 - MongoDB + Mongoose
@@ -54,42 +66,33 @@ FitFlow/
 
 ---
 
-## 🚀 How to Run the Project
+## 🚀 How to Run the Project (Local - Optional)
 
-### 1. Clone the repository
-
-git clone https://github.com/orelklodintwito/FitFlow1.git  
+1) Clone the repository:
+git clone https://github.com/orelklodintwito/FitFlow1.git
 cd FitFlow1
 
----
-
-### 2. Server Setup
-
-cd server  
+2) Server setup:
+cd server
 npm install
 
 Create a .env file inside the server folder:
-
-MONGO_URI=your_mongodb_connection_string  
-JWT_SECRET=your_jwt_secret  
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
 PORT=5000
 
 Run the server:
-
 npm start
 
-Server runs on:  
+Server runs on:
 http://localhost:5000
 
----
-
-### 3. Client Setup
-
-cd client  
-npm install  
+3) Client setup:
+cd client
+npm install
 npm run dev
 
-Client runs on:  
+Client runs on:
 http://localhost:5173
 
 ---
@@ -136,7 +139,7 @@ Each main page displays clear feedback for these states.
 
 ## 📝 Notes
 
-- MongoDB must be running and accessible
+- MongoDB must be running and accessible for local development
 - .env file is required for the server to work
 - This project was built as a final project for a React course
 
