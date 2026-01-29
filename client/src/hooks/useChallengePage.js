@@ -389,6 +389,8 @@ const taskStatus = [
     editingWorkout,
     showWorkoutModal,
     viewedDay,
+    dayToShow,
+
 
 
     // inputs

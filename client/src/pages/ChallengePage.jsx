@@ -68,11 +68,8 @@ function ChallengePage({ meals }) {
     handleRestartChallenge,
     refreshToday,
     loadWorkouts,
+    dayToShow,
   } = c;
-  const isReadonlyDay =
-  selectedDay !== null && selectedDay !== today?.dayNumber;
-
-const dayToShow = isReadonlyDay ? c.viewedDay : today;
 
   /* ============================== */
   /* PAGE STATE (testing / UX) */
@@ -219,9 +216,10 @@ const dayToShow = isReadonlyDay ? c.viewedDay : today;
               </h1>
 
               <div className="challenge-day">
-                Day {today?.dayNumber || 1}
-                {totalDays && ` / ${totalDays}`}
-              </div>
+  Day {dayToShow?.dayNumber || 1}
+  {totalDays && ` / ${totalDays}`}
+</div>
+
             </div>
 
             <div className="days-strip">

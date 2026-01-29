@@ -14,26 +14,34 @@ const CHALLENGE_RULES = require("../challenges/challengeRules");
 router.get("/today", auth, async (req, res) => {
   try {
     const userId = req.user.id;
+    const challenge = await Challenge.findOne({ user: userId });
+      if (!challenge) {
+        return res.status(404).json({ message: "No active challenge found" });
+      }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    let todayDay = await ChallengeDay.findOne({
-      user: userId,
-      date: today,
-    });
+let todayDay = await ChallengeDay.findOne({
+  challenge: challenge._id,
+  date: today,
+});
+
+
 
     if (!todayDay) {
-      const lastDay = await ChallengeDay.findOne({
-        user: userId,
-      }).sort({ date: -1 });
+     const lastDay = await ChallengeDay.findOne({
+  challenge: challenge._id,
+}).sort({ date: -1 });
 
-      todayDay = await ChallengeDay.create({
-        user: userId,
-        date: today,
-        challenge: lastDay?.challenge,
-        dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
-      });
+
+     todayDay = await ChallengeDay.create({
+  user: userId,
+  challenge: challenge._id,
+  date: today,
+  dayNumber: lastDay ? lastDay.dayNumber + 1 : 1,
+});
+
     }
 
     res.json(todayDay);
