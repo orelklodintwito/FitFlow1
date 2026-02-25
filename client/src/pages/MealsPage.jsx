@@ -53,11 +53,11 @@ const filteredMeals = Object.fromEntries(
 
       // 👈 צפייה מ־Challenge ביום מסוים
       if (dateFromChallenge) {
-        const start = startOfDay(dateFromChallenge);
-        const end = new Date(start);
-        end.setDate(end.getDate() + 1);
-        return foodDate >= start && foodDate < end;
-      }
+  return (
+    new Date(food.date).toDateString() ===
+    new Date(dateFromChallenge).toDateString()
+  );
+}
 
       // 👇 מצב רגיל
       if (filter === "today") {

@@ -275,12 +275,14 @@ let allMeals = [];
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
 
-    allMeals = Object.values(meals)
-      .flat()
-      .filter((m) => {
-        const d = new Date(m.date);
-        return d >= start && d < end;
-      });
+   allMeals = Object.values(meals)
+  .flat()
+  .filter((m) => {
+    return (
+      new Date(m.date).toDateString() ===
+      new Date(dayToShow.date).toDateString()
+    );
+  });
   }
 
   const totalCalories = allMeals.reduce(
