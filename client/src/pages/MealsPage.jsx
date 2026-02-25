@@ -53,11 +53,11 @@ const filteredMeals = Object.fromEntries(
 
       // 👈 צפייה מ־Challenge ביום מסוים
       if (dateFromChallenge) {
-  return (
-    new Date(food.date).toDateString() ===
-    new Date(dateFromChallenge).toDateString()
-  );
-}
+        const start = startOfDay(dateFromChallenge);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 1);
+        return foodDate >= start && foodDate < end;
+      }
 
       // 👇 מצב רגיל
       if (filter === "today") {
@@ -88,13 +88,13 @@ const filteredMeals = Object.fromEntries(
   /* ===================== ADD HANDLERS ===================== */
   const handleManualAdd = () => {
   if (!openManualFood) return;
-openManualFood(selectedMeal, location.state?.challengeDayId);
+  openManualFood(selectedMeal);
   setSelectedMeal(null);
 };
 
 const handleApiAdd = () => {
   if (!openFoodSearch) return;
-openFoodSearch(selectedMeal, location.state?.challengeDayId);
+  openFoodSearch(selectedMeal);
   setSelectedMeal(null);
 };
 

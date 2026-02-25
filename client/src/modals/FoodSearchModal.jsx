@@ -4,7 +4,7 @@ import FoodItem from "../components/FoodItem.jsx";
 import { addMeal } from "../services/meals";
 import { saveChallengeDay } from "../services/challengeDays";
 
-function FoodSearchModal({ meal, challengeDayId, onClose, onSuccess }){
+function FoodSearchModal({ meal, onClose, onSuccess }) {
   const [query, setQuery] = useState("");
   const [url, setUrl] = useState(null);
   const [loadingAdd, setLoadingAdd] = useState(false);
@@ -43,13 +43,12 @@ function FoodSearchModal({ meal, challengeDayId, onClose, onSuccess }){
     setLoadingAdd(true);
 
     // ✅ הוספת האוכל – זה הקריטי
- await addMeal({
-  name: item.product_name || "Unknown",
-  calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
-  protein: item.nutriments?.proteins_100g ?? 0,
-  mealType: meal,
-  challengeDay: challengeDayId || null,
-});
+    await addMeal({
+      name: item.product_name || "Unknown",
+      calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
+      protein: item.nutriments?.proteins_100g ?? 0,
+      mealType: meal,
+    });
 
     // ⚠️ עדכון אתגר – לא מפיל אם נכשל
     try {
