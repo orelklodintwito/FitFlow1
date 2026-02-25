@@ -15,8 +15,7 @@ function FoodSearch() {
   const searchFood = () => {
     if (!query.trim()) return;
 
-    const apiUrl = `/external/food?query=${query}`;
-
+const apiUrl = `/api/external/food?query=${query}`;
 
     setUrl(apiUrl);
   };
