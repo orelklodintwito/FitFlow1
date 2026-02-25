@@ -13,10 +13,10 @@ export function useApi(url) {
 
 // אם אנחנו בפרודקשן - משתמשים בכתובת של רנדר. 
 // אם אנחנו בפיתוח - משתמשים בשרת המקומי (למשל localhost:5000)
-const BASE_URL = import.meta.env.PROD
-  ? "https://fitflow1.onrender.com"
-  : "http://localhost:5000"; 
-
+// const BASE_URL = import.meta.env.PROD
+ // ? "https://fitflow1.onrender.com"
+ // : "http://localhost:5000"; 
+const BASE_URL = "https://fitflow1.onrender.com";
 const fullUrl = `${BASE_URL}${url}`;
 
     // 🔥 לוג קריטי – חייב להופיע בפרודקשן
