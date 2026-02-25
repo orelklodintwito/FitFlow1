@@ -19,11 +19,10 @@ function AdminStatusFilter({ value, onChange }) {
       ? "Active"
       : value === "suspended"
       ? "Suspended"
-      : value === "deleted"
-      ? "Deleted"
+    
       : "Status";
 
-  const statuses = ["active", "suspended", "deleted"];
+  const statuses = ["active", "suspended"];
 
   return (
     <div className="admin-filter-dropdown" ref={ref}>
