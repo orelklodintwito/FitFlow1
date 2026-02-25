@@ -3,7 +3,7 @@ import "../styles/homepage.css";
 import "../styles/components.css";
 import { useNavigate } from "react-router-dom";
 import PageState from "../components/PageState";
-
+import BmiBar from "../admin/components/BmiBar";
 
 import { useFavorites } from "../context/FavoritesContext.jsx";
 
@@ -180,10 +180,6 @@ if (pageStatus === "loading") {
         <div className="summary-bmi-row">
           <div className="dashboard-card summary-card">
             <h2>Today's Summary</h2>
-            <p>🍽 Meals logged: {allMeals.length}</p>
-{allMeals.length === 0 && (
-  <p className="small-text">No meals logged yet today</p>
-)}
 
             <p>🔥 Calories consumed: {totalCalories}</p>
             <p>🥩 Protein: {totalProtein} g</p>
@@ -200,10 +196,7 @@ if (pageStatus === "loading") {
               </div>
 
               <div className="bmi-line">
-                <div
-                  className="bmi-marker"
-                  style={{ left: `${bmiPercent}%` }}
-                />
+                <BmiBar percentage={bmiPercent} />
               </div>
 
               <p className="bmi-value">

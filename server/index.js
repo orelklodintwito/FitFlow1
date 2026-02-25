@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const adminRoutes = require("./routes/adminRoutes");
 
 // ===== ROUTES =====
 const authRoutes = require("./routes/auth");
@@ -15,13 +16,17 @@ const app = express();
 
 /* ===================== MIDDLEWARE ===================== */
 app.use(express.json());
-
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:5173",
+      "https://fitflow1-1.onrender.com",
+    ],
     credentials: true,
   })
 );
+app.use("/api/admin", adminRoutes);
+
 
 
 

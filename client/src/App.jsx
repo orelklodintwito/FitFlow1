@@ -1,19 +1,21 @@
 // src/App.jsx
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-// ⭐ API
 import { getMeals, deleteMeal } from "./services/meals";
-
 import Header from "./components/Header.jsx";
 import ChallengePage from "./pages/ChallengePage.jsx";
-
+import AdminDashboard from "./admin/AdminDashboard.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import MealsPage from "./pages/MealsPage.jsx";
 import ApiPage from "./pages/ApiPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import EditProfilePage from "./pages/EditProfilePage.jsx";
 import NotFound from "./pages/NotFound.jsx";
+
+import AdminRouteGuard from "./admin/AdminRouteGuard.jsx";
+import AdminLayout from "./admin/AdminLayout.jsx";
+import AdminUsers from "./admin/AdminUsers.jsx";
 
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
@@ -35,11 +37,6 @@ import "./styles/api.css";
 // --------------------------------
 
 function App() {
-  /* ====================================================== */
-  /* AUTH – מבוסס token */
-  /* ====================================================== */
-  
-
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem("token");
   });
@@ -47,16 +44,12 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
   const navigate = useNavigate();
 
-  // אם token נמחק/נוסף מבחוץ, נוודא sync בסיסי
   useEffect(() => {
     const syncAuth = () => setIsLoggedIn(!!localStorage.getItem("token"));
     window.addEventListener("storage", syncAuth);
     return () => window.removeEventListener("storage", syncAuth);
   }, []);
 
-  /* ====================================================== */
-  /* MEALS – מגיעים מהשרת */
-  /* ====================================================== */
   const [meals, setMeals] = useState({
     breakfast: [],
     lunch: [],
@@ -91,9 +84,6 @@ function App() {
     }
   }, [isLoggedIn]);
 
-  /* ====================================================== */
-  /* DELETE MEAL */
-  /* ====================================================== */
   const handleDeleteMeal = async (id) => {
     try {
       await deleteMeal(id);
@@ -103,9 +93,6 @@ function App() {
     }
   };
 
-  /* ====================================================== */
-  /* MODALS */
-  /* ====================================================== */
   const [mealType, setMealType] = useState("");
   const [showApiModal, setShowApiModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
@@ -120,17 +107,11 @@ function App() {
     setShowManualModal(true);
   };
 
-  /* ====================================================== */
-  /* AUTH BACKGROUND */
-  /* ====================================================== */
   useEffect(() => {
     if (!isLoggedIn) document.body.classList.add("auth-page");
     else document.body.classList.remove("auth-page");
   }, [isLoggedIn]);
 
-  /* ====================================================== */
-  /* LOGIN MODE */
-  /* ====================================================== */
   if (!isLoggedIn) {
     return showSignup ? (
       <Signup setShowSignup={setShowSignup} setIsLoggedIn={setIsLoggedIn} />
@@ -139,28 +120,31 @@ function App() {
     );
   }
 
-  /* ====================================================== */
-  /* APP */
-  /* ====================================================== */
   return (
     <div className="app-container">
-      <Header
-  onLogout={() => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
+      <Routes>
 
-    // 🔥 איפוס מלא של נתוני משתמש
-    setMeals({
-      breakfast: [],
-      lunch: [],
-      dinner: [],
-    });
-  }}
-/>
-
-
-      <main className="main-content">
-        <Routes>
+        {/* ================= USER LAYOUT ================= */}
+        <Route
+          element={
+            <>
+              <Header
+                onLogout={() => {
+                  localStorage.removeItem("token");
+                  setIsLoggedIn(false);
+                  setMeals({
+                    breakfast: [],
+                    lunch: [],
+                    dinner: [],
+                  });
+                }}
+              />
+              <main className="main-content">
+                <Outlet />
+              </main>
+            </>
+          }
+        >
           <Route
             path="/"
             element={
@@ -180,30 +164,45 @@ function App() {
                 openFoodSearch={openFoodSearch}
                 openManualFood={openManualFood}
                 onDelete={handleDeleteMeal}
-                onReload={reloadMealsFromServer}   // ⭐ חשוב
+                onReload={reloadMealsFromServer}
               />
             }
           />
 
           <Route path="/api" element={<ApiPage />} />
-
-          {/* 👤 PROFILE */}
           <Route
             path="/profile"
             element={<SettingsPage setIsLoggedIn={setIsLoggedIn} />}
           />
-
           <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route
+            path="/challenge"
+            element={<ChallengePage meals={meals} />}
+          />
+        </Route>
 
-          {/* 🏆 CHALLENGE */}
-          <Route path="/challenge" element={<ChallengePage meals={meals} />} />
+        {/* ================= ADMIN ================= */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRouteGuard>
+              <AdminLayout />
+            </AdminRouteGuard>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
 
-          {/* ❌ 404 */}
-          <Route path="*" element={<NotFound goHome={() => navigate("/")} />} />
-        </Routes>
-      </main>
+        {/* ================= 404 ================= */}
+        <Route
+          path="*"
+          element={<NotFound goHome={() => navigate("/")} />}
+        />
 
-      {/* ===== API MODAL ===== */}
+      </Routes>
+
+      {/* ===== MODALS ===== */}
       {showApiModal && (
         <FoodSearchModal
           meal={mealType}
@@ -212,7 +211,6 @@ function App() {
         />
       )}
 
-      {/* ===== MANUAL MODAL ===== */}
       {showManualModal && (
         <ManualFoodModal
           meal={mealType}
@@ -220,6 +218,7 @@ function App() {
           onSuccess={reloadMealsFromServer}
         />
       )}
+
     </div>
   );
 }

@@ -255,18 +255,8 @@ transform: translate(-50%, -50%);
 }
 
 .bmi-line {
-  height: 10px;
   position: relative;
-  background: linear-gradient(
-    to right,
-    #ffb3b3 0% 18.5%,
-    #c8ffd9 18.5% 25%,
-    #fff2b3 25% 30%,
-    #ffb3b3 30% 100%
-  );
-  border-radius: 999px;
 }
-
 .bmi-marker {
   position: absolute;
   top: -3px;
@@ -726,16 +716,7 @@ transform: translate(-50%, -50%);
 }
 
 .bmi-line {
-  height: 10px;
   position: relative;
-  background: linear-gradient(
-    to right,
-    #ffb3b3 0% 18.5%,
-    #c8ffd9 18.5% 25%,
-    #fff2b3 25% 30%,
-    #ffb3b3 30% 100%
-  );
-  border-radius: 999px;
 }
 
 .bmi-marker {

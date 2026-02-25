@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const auth = require("../middleware/auth");
 const Challenge = require("../models/Challenge");
 const ChallengeDay = require("../models/ChallengeDay");
-
+const User = require("../models/User");
 /**
  * GET /api/challenge
  * מחזיר את האתגר הפעיל + היום הנוכחי של המשתמש
@@ -117,7 +117,11 @@ router.post("/", auth, async (req, res) => {
       goals: goals || {},
       startDate: today,
     });
-
+// ✅ עדכון המשתמש
+await User.findByIdAndUpdate(userId, {
+  activeChallenge: type,
+  challengeStartedAt: today,
+});
     // יצירת יום 1
     await ChallengeDay.create({
       challenge: challenge._id,
@@ -156,7 +160,11 @@ router.delete("/", auth, async (req, res) => {
     });
 
     await challenge.deleteOne();
-
+    // ✅ ניקוי challenge מהמשתמש
+    await User.findByIdAndUpdate(userId, {
+      activeChallenge: null,
+      challengeStartedAt: null,
+    });
     return res.json({ message: "Challenge reset successfully" });
   } catch (err) {
     console.error("❌ Challenge delete error:", err);
