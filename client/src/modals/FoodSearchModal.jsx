@@ -15,11 +15,8 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
  const searchFood = async () => {
   if (!query.trim()) return;
 
-  const apiUrl =
-    "https://corsproxy.io/?" +
-    encodeURIComponent(
-      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`
-    );
+  const apiUrl = 
+  `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`;
 
   try {
     setLoadingSearch(true);
