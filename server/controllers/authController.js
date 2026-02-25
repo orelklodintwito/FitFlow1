@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 /* ===================== SIGNUP ===================== */
@@ -15,7 +16,6 @@ exports.signup = async (req, res) => {
       return res.status(409).json({ message: "User already exists" });
     }
 
-    // Password hashing is handled by the schema pre("save") hook
     const user = await User.create({
       email,
       password,
@@ -31,23 +31,16 @@ exports.signup = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "User created successfully",
+      userId: user._id,
       token,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
     });
   } catch (err) {
     console.error("Signup error:", err);
-    return res.status(500).json({ message: "Failed to create user" });
+    res.status(500).json({ message: err.message });
   }
 };
-
-
 /* ===================== LOGIN ===================== */
 exports.login = async (req, res) => {
   try {
@@ -59,26 +52,28 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Explicitly select password due to select:false in schema
+    // 🔴 קריטי: שליפת סיסמה למרות select:false במודל
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const isMatch = await user.comparePassword(password);
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      {
+        userId: user._id,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Login successful",
       token,
       user: {
@@ -89,7 +84,6 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ message: "Login failed" });
+    res.status(500).json({ message: err.message });
   }
 };
