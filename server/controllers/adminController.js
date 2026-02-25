@@ -4,9 +4,14 @@ const Meal = require("../models/Meal");
 /* ===================== USERS ===================== */
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({ deletedAt: null }).select(
-  "name email role status activeChallenge challengeStartedAt createdAt age height weight"
-);
+    const users = await User.find({
+      $or: [
+        { deletedAt: null },
+        { deletedAt: { $exists: false } }
+      ]
+    }).select(
+      "name email role status activeChallenge challengeStartedAt createdAt age height weight deletedAt"
+    );
 
     res.json(users);
   } catch (err) {
