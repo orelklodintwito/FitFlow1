@@ -18,5 +18,29 @@ router.get("/meals", async (req, res) => {
     });
   }
 });
+// GET /api/external/food?query=milk
+router.get("/food", async (req, res) => {
+  try {
+    const query = req.query.query || "";
 
+    const response = await axios.get(
+      "https://world.openfoodfacts.org/cgi/search.pl",
+      {
+        params: {
+          search_terms: query,
+          search_simple: 1,
+          action: "process",
+          json: 1,
+          page_size: 10,
+        },
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch food from OpenFoodFacts",
+    });
+  }
+});
 module.exports = router;

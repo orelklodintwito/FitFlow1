@@ -15,11 +15,8 @@ function FoodSearch() {
   const searchFood = () => {
     if (!query.trim()) return;
 
-    const apiUrl =
-      "https://corsproxy.io/?" +
-      encodeURIComponent(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=10`
-      );
+    const apiUrl = `/api/external/food?query=${query}`;
+
 
     setUrl(apiUrl);
   };
