@@ -3,6 +3,8 @@ import { useState } from "react";
 import { addWorkout } from "../services/workouts";
 import "../styles/modal.css";
 
+// modal for adding a new workout to the current challenge day
+// shows inputs for workout type, duration, and optional calories burned
 function AddWorkoutModal({ onClose, onSuccess }) {
   const [workoutType, setWorkoutType] = useState("");
   const [duration, setDuration] = useState("");
@@ -10,6 +12,7 @@ function AddWorkoutModal({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    // basic validation - type and duration are required
     if (!workoutType || !duration) return;
 
     try {
@@ -18,13 +21,13 @@ function AddWorkoutModal({ onClose, onSuccess }) {
       await addWorkout({
         type: workoutType,
         duration: Number(duration),
-        calories: Number(calories || 0),
+        calories: Number(calories || 0), // default to 0 if empty
       });
 
-      onSuccess(); // ריענון נתונים
-      onClose();
+      onSuccess(); // refresh parent data (e.g. reload workouts list)
+      onClose();   // close the modal
     } catch (err) {
-      console.error("❌ Failed to add workout", err);
+      console.error("Failed to add workout", err);
       alert("Failed to save workout");
     } finally {
       setLoading(false);
@@ -32,6 +35,7 @@ function AddWorkoutModal({ onClose, onSuccess }) {
   };
 
   return (
+    // clicking the overlay doesn't close the modal - only the Close button does
     <div className="modal-overlay">
       <div className="modal-box small">
         <h2 className="modal-title">Add Workout</h2>
@@ -63,6 +67,7 @@ function AddWorkoutModal({ onClose, onSuccess }) {
           />
         </div>
 
+        {/* disabled while saving to prevent double submission */}
         <button
           className="modal-btn"
           onClick={handleSubmit}

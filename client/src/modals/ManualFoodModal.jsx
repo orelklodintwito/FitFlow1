@@ -3,6 +3,8 @@ import { addMeal } from "../services/meals";
 import { saveChallengeDay } from "../services/challengeDays";
 import "../styles/modal.css";
 
+// modal for manually adding a food item (instead of searching the API)
+// user types in the name, calories, and protein themselves
 function ManualFoodModal({ meal, onClose, onSuccess }) {
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
@@ -10,36 +12,38 @@ function ManualFoodModal({ meal, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-  if (!foodName || !calories) return;
+    // basic validation - name and calories are required
+    if (!foodName || !calories) return;
 
-  try {
-    setLoading(true);
-
-    // שמירת הארוחה – זה העיקר
-    await addMeal({
-      name: foodName,
-      calories: Number(calories),
-      protein: Number(protein || 0),
-      mealType: meal,
-    });
-
-    // עדכון אתגר – לא מפיל אם נכשל
     try {
-      await saveChallengeDay({});
+      setLoading(true);
+
+      // step 1: save the meal - this is the critical part
+      await addMeal({
+        name: foodName,
+        calories: Number(calories),
+        protein: Number(protein || 0),
+        mealType: meal,
+      });
+
+      // step 2: update challenge day stats (non-blocking)
+      try {
+        await saveChallengeDay({});
+      } catch (err) {
+        console.warn("saveChallengeDay failed", err);
+      }
+
+      // step 3: refresh parent and close
+      // setLoading before onClose to avoid setState on unmounted component
+      await onSuccess?.();
+      setLoading(false);
+      onClose?.();
     } catch (err) {
-      console.warn("⚠️ saveChallengeDay failed", err);
+      console.error("Failed to add meal", err);
+      alert("Failed to save meal");
+      setLoading(false);
     }
-
-    onSuccess();
-    onClose();
-  } catch (err) {
-    console.error("❌ Failed to add meal", err);
-    alert("Failed to save meal");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="modal-overlay">

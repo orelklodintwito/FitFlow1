@@ -5,13 +5,15 @@ import "../admin/admin.css";
 
 import AdminRoleFilter from "./components/AdminRoleFilter";
 import AdminStatusFilter from "./components/AdminStatusFilter";
-import AdminChallengeFilter from "./components/AdminChallengeFilter";
+// removed unused AdminChallengeFilter import
 
+// admin users page - shows a table of all users with filters and actions
 function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // filter state - each field narrows down the displayed users
   const [filters, setFilters] = useState({
     email: "",
     role: "",
@@ -27,6 +29,7 @@ function AdminUsers() {
     } catch (err) {
       const status = err?.response?.status;
 
+      // unauthorized - clear auth and redirect
       if (status === 401 || status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("userProfile");
@@ -41,9 +44,12 @@ function AdminUsers() {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ===================== ACTIONS ===================== */
+
+  // added try/catch to all actions so user sees an error if something fails
 
   const suspendUser = async (id) => {
     const confirmAction = window.confirm(
@@ -51,8 +57,13 @@ function AdminUsers() {
     );
     if (!confirmAction) return;
 
-    await api.patch(`/admin/users/${id}/suspend`);
-    fetchUsers();
+    try {
+      await api.patch(`/admin/users/${id}/suspend`);
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to suspend user:", err);
+      alert("Failed to suspend user");
+    }
   };
 
   const activateUser = async (id) => {
@@ -61,8 +72,13 @@ function AdminUsers() {
     );
     if (!confirmAction) return;
 
-    await api.patch(`/admin/users/${id}/activate`);
-    fetchUsers();
+    try {
+      await api.patch(`/admin/users/${id}/activate`);
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to activate user:", err);
+      alert("Failed to activate user");
+    }
   };
 
   const deleteUser = async (id) => {
@@ -71,8 +87,13 @@ function AdminUsers() {
     );
     if (!confirmAction) return;
 
-    await api.delete(`/admin/users/${id}`);
-    fetchUsers();
+    try {
+      await api.delete(`/admin/users/${id}`);
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      alert("Failed to delete user");
+    }
   };
 
   /* ===================== FILTERS ===================== */
@@ -82,9 +103,14 @@ function AdminUsers() {
       .includes(filters.email.toLowerCase());
 
     const matchRole = !filters.role || u.role === filters.role;
-    const matchStatus =!filters.status ||
-    (filters.status === "deleted" && u.deletedAt) ||
-    (filters.status !== "deleted" && u.status === filters.status);
+
+    // deleted users have a deletedAt field, others checked by status
+    const matchStatus =
+      !filters.status ||
+      (filters.status === "deleted" && u.deletedAt) ||
+      (filters.status !== "deleted" && u.status === filters.status);
+
+    // "none" means users with no active challenge
     const matchChallenge =
       !filters.challenge ||
       (filters.challenge === "none" && !u.activeChallenge) ||
@@ -108,6 +134,7 @@ function AdminUsers() {
 
         {/* FILTERS */}
         <div className="admin-filters-bar">
+          {/* email search input */}
           <div className="admin-filter-dropdown">
             <div className="admin-pill admin-email-pill">
               <input
@@ -121,27 +148,17 @@ function AdminUsers() {
             </div>
           </div>
 
+          {/* fixed: no double toggle - the component handles toggle internally,
+              here we just pass the value straight through */}
           <AdminRoleFilter
             value={filters.role}
-            onChange={(role) =>
-              setFilters({
-                ...filters,
-                role: filters.role === role ? "" : role,
-              })
-            }
+            onChange={(role) => setFilters({ ...filters, role })}
           />
 
           <AdminStatusFilter
             value={filters.status}
-            onChange={(status) =>
-              setFilters({
-                ...filters,
-                status: filters.status === status ? "" : status,
-              })
-            }
+            onChange={(status) => setFilters({ ...filters, status })}
           />
-
-          
         </div>
 
         {/* TABLE */}
@@ -161,21 +178,26 @@ function AdminUsers() {
 
             <tbody>
               {filteredUsers.map((u) => (
-                <tr key={u._id} className={`status-${u.deletedAt ? "deleted" : u.status}`}> 
+                // row class changes color based on user status
+                <tr
+                  key={u._id}
+                  className={`status-${u.deletedAt ? "deleted" : u.status}`}
+                >
                   <td>{u.email}</td>
                   <td>{u.role}</td>
                   <td>
-  {u.deletedAt
-    ? "Deleted"
-    : u.status
-    ? u.status.charAt(0).toUpperCase() + u.status.slice(1)
-    : "—"}
-</td>
+                    {u.deletedAt
+                      ? "Deleted"
+                      : u.status
+                      ? u.status.charAt(0).toUpperCase() + u.status.slice(1)
+                      : "—"}
+                  </td>
                   <td>{u.activeChallenge || "—"}</td>
                   <td>{u.createdAt?.slice(0, 10)}</td>
                   <td>{u.challengeStartedAt || "—"}</td>
 
                   <td className="admin-actions">
+                    {/* show Suspend for active users, Activate for suspended */}
                     {u.status === "active" ? (
                       <button
                         onClick={() => suspendUser(u._id)}
@@ -202,6 +224,7 @@ function AdminUsers() {
                 </tr>
               ))}
 
+              {/* empty state when no users match filters */}
               {filteredUsers.length === 0 && (
                 <tr>
                   <td colSpan="7" className="admin-empty">

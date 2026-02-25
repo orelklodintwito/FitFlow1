@@ -2,6 +2,8 @@ import { useState } from "react";
 import { updateWorkout } from "../services/workouts";
 import "../styles/modal.css";
 
+// modal for editing an existing workout
+// lets the user change type, duration, and calories burned
 function EditWorkoutModal({ workout, onClose, onSuccess }) {
   const [type, setType] = useState(workout.type);
   const [duration, setDuration] = useState(workout.duration);
@@ -18,12 +20,14 @@ function EditWorkoutModal({ workout, onClose, onSuccess }) {
         calories: Number(calories),
       });
 
-      onSuccess(); // 🔄 ריענון מהשרת
-      onClose();
+      // refresh parent data and close
+      // setLoading before onClose to avoid setState on unmounted component
+      await onSuccess?.();
+      setLoading(false);
+      onClose?.();
     } catch (err) {
-      console.error("❌ Failed to update workout", err);
+      console.error("Failed to update workout", err);
       alert("Failed to update workout");
-    } finally {
       setLoading(false);
     }
   };
@@ -33,12 +37,15 @@ function EditWorkoutModal({ workout, onClose, onSuccess }) {
       <div className="modal-box small">
         <h2>Edit Workout</h2>
 
+        <label>Workout type</label>
         <input
           value={type}
           onChange={(e) => setType(e.target.value)}
           className="modal-input"
+          placeholder="Running, Strength, Yoga..."
         />
 
+        <label>Duration (minutes)</label>
         <input
           type="number"
           value={duration}
@@ -46,6 +53,7 @@ function EditWorkoutModal({ workout, onClose, onSuccess }) {
           className="modal-input"
         />
 
+        <label>Calories burned</label>
         <input
           type="number"
           value={calories}

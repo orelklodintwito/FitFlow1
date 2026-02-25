@@ -8,6 +8,10 @@ import NutritionDonut from "../components/NutritionDonut";
 
 import { useChallengePage } from "../hooks/useChallengePage";
 
+// main challenge page - handles 3 views:
+// 1. "select" - choose a preset or custom challenge
+// 2. "custom" - form to set up a custom challenge
+// 3. "active" - daily tracking dashboard for the active challenge
 function ChallengePage({ meals }) {
   const c = useChallengePage(meals);
 
@@ -22,6 +26,7 @@ function ChallengePage({ meals }) {
     editingWorkout,
     showWorkoutModal,
 
+    // custom challenge form inputs
     durationDays,
     setDurationDays,
     workoutsGoal,
@@ -33,6 +38,7 @@ function ChallengePage({ meals }) {
     reading,
     setReading,
 
+    // daily tracking inputs
     dayWater,
     setDayWater,
     dayReading,
@@ -40,11 +46,13 @@ function ChallengePage({ meals }) {
     daySteps,
     setDaySteps,
 
+    // ui state
     savingDay,
     dayError,
     customError,
     isReadonly,
 
+    // derived stats
     progressPercent,
     completedTasks,
     totalTasks,
@@ -53,6 +61,7 @@ function ChallengePage({ meals }) {
     calorieGoal,
     allMeals,
 
+    // actions
     setStep,
     setEditingWorkout,
     setShowWorkoutModal,
@@ -72,7 +81,7 @@ function ChallengePage({ meals }) {
   } = c;
 
   /* ============================== */
-  /* PAGE STATE (testing / UX) */
+  /* PAGE STATE                     */
   /* ============================== */
   let pageStatus = "ready";
 
@@ -84,6 +93,7 @@ function ChallengePage({ meals }) {
     pageStatus = "error";
   }
 
+  // show loading or error screen before rendering the main content
   if (pageStatus !== "ready") {
     return (
       <div
@@ -96,7 +106,7 @@ function ChallengePage({ meals }) {
               <>
                 <h2>Loading challenge…</h2>
                 <p className="small-text">
-                  If this stays stuck, it’s probably an API/Auth issue.
+                  If this stays stuck, it's probably an API/Auth issue.
                 </p>
               </>
             )}
@@ -115,7 +125,6 @@ function ChallengePage({ meals }) {
     );
   }
 
-
   return (
     <div
       className="challenge-page"
@@ -123,7 +132,7 @@ function ChallengePage({ meals }) {
     >
       <div className="challenge-container">
 
-        {/* ================= SELECT ================= */}
+        {/* ================= SELECT CHALLENGE ================= */}
         {step === "select" && (
           <>
             <h1>Choose Your Challenge</h1>
@@ -147,7 +156,7 @@ function ChallengePage({ meals }) {
           </>
         )}
 
-        {/* ================= CUSTOM ================= */}
+        {/* ================= CUSTOM CHALLENGE FORM ================= */}
         {step === "custom" && (
           <>
             <h1>Create Custom Challenge</h1>
@@ -207,35 +216,33 @@ function ChallengePage({ meals }) {
           </>
         )}
 
-        {/* ================= ACTIVE ================= */}
+        {/* ================= ACTIVE CHALLENGE DASHBOARD ================= */}
         {step === "active" && rules && (
           <>
+            {/* header with challenge name and current day */}
             <div className="challenge-header">
               <h1 className="challenge-title">
                 {rules.name || "Custom Challenge"}
               </h1>
 
               <div className="challenge-day">
-  Day {dayToShow?.dayNumber || 1}
-  {totalDays && ` / ${totalDays}`}
-</div>
-
+                Day {dayToShow?.dayNumber || 1}
+                {totalDays && ` / ${totalDays}`}
+              </div>
             </div>
 
+            {/* day selector strip - scroll through all days */}
             <div className="days-strip">
               {Array.from({ length: totalDays || 0 }).map((_, i) => {
                 const dayNum = i + 1;
-                const isFuture =
-                  today && dayNum > today.dayNumber;
+                const isFuture = today && dayNum > today.dayNumber;
                 const isActive = dayNum === selectedDay;
 
                 return (
                   <button
                     key={dayNum}
                     disabled={isFuture}
-                    className={`day-pill ${
-                      isActive ? "active" : ""
-                    }`}
+                    className={`day-pill ${isActive ? "active" : ""}`}
                     onClick={() => handleSelectDay(dayNum)}
                   >
                     {dayNum}
@@ -245,6 +252,7 @@ function ChallengePage({ meals }) {
             </div>
 
             <div className="challenge-active-layout">
+              {/* ---- STATUS CARD ---- */}
               <div className="dashboard-card">
                 <b>Status</b>
                 <p>
@@ -255,13 +263,12 @@ function ChallengePage({ meals }) {
                     : "IN PROGRESS"}
                 </p>
 
+                {/* progress bar showing daily task completion */}
                 <div className="daily-progress">
                   <div className="progress-bar">
                     <div
                       className="progress-fill"
-                      style={{
-                        width: `${progressPercent}%`,
-                      }}
+                      style={{ width: `${progressPercent}%` }}
                     />
                   </div>
 
@@ -272,12 +279,8 @@ function ChallengePage({ meals }) {
                     ({progressPercent}%)
                   </p>
 
-                  <div
-                    style={{
-                      marginTop: 20,
-                      textAlign: "center",
-                    }}
-                  >
+                  <div style={{ marginTop: 20, textAlign: "center" }}>
+                    {/* save button disabled when viewing past day (readonly) */}
                     <button
                       className="primary-btn"
                       onClick={handleSaveDay}
@@ -287,10 +290,7 @@ function ChallengePage({ meals }) {
                     </button>
 
                     {dayError && (
-                      <p
-                        className="error-text"
-                        style={{ marginTop: 8 }}
-                      >
+                      <p className="error-text" style={{ marginTop: 8 }}>
                         {dayError}
                       </p>
                     )}
@@ -298,165 +298,152 @@ function ChallengePage({ meals }) {
                 </div>
               </div>
 
+              {/* ---- DAILY TASKS CARD ---- */}
               <div className="dashboard-card">
                 <b>Today</b>
 
                 <div className="challenge-tiles grid-2">
+                  {/* NUTRITION tile */}
                   <div className="challenge-tile wide">
                     <div className="tile-header">
                       <b>🥗 Nutrition</b>
-                     <span
-                      className="nutrition-view"
-                      onClick={() =>
-                        navigate("/form", { state: { date: dayToShow?.date, challengeDayId: dayToShow?._id}, })
-                      }
-                    >
-                      View →
-                    </span>
-
-
-
-
+                      <span
+                        className="nutrition-view"
+                        onClick={() =>
+                          navigate("/form", {
+                            state: {
+                              date: dayToShow?.date,
+                              challengeDayId: dayToShow?._id,
+                            },
+                          })
+                        }
+                      >
+                        View →
+                      </span>
                     </div>
 
                     <NutritionDonut
                       consumedCalories={totalCalories}
                       targetCalories={calorieGoal}
                       protein={allMeals.reduce(
-                        (sum, m) =>
-                          sum + Number(m.protein || 0),
+                        (sum, m) => sum + Number(m.protein || 0),
                         0
                       )}
                     />
                   </div>
 
+                  {/* READING tile - auto-saves on change */}
                   <div className="challenge-tile challenge-tile-fixed">
                     <b>📖 Reading</b>
                     <input
-                    className="challenge-input"
-                    type="number"
-                    value={dayReading}
-                    disabled={isReadonly}
-                    onChange={(e) => {
-                      if (isReadonly) return;
-                      const val = e.target.value;
-                      setDayReading(val);
-                      autoSaveDay({
-                        readingPages:
-                          val === ""
-                            ? undefined
-                            : Number(val),
-                      });
-                    }}
-                  />
-
+                      className="challenge-input"
+                      type="number"
+                      value={dayReading}
+                      disabled={isReadonly}
+                      onChange={(e) => {
+                        if (isReadonly) return;
+                        const val = e.target.value;
+                        setDayReading(val);
+                        autoSaveDay({
+                          readingPages: val === "" ? undefined : Number(val),
+                        });
+                      }}
+                    />
                   </div>
 
+                  {/* WATER tile - auto-saves on change */}
                   <div className="challenge-tile challenge-tile-fixed">
                     <b>💧 Water</b>
                     <input
-                    className="challenge-input"
-                    type="number"
-                    value={dayWater}
-                    disabled={isReadonly}
-                    onChange={(e) => {
-                      if (isReadonly) return;
-                      const val = e.target.value;
-                      setDayWater(val);
-                      autoSaveDay({
-                        waterLiters:
-                          val === ""
-                            ? undefined
-                            : Number(val),
-                      });
-                    }}
-                  />
-
+                      className="challenge-input"
+                      type="number"
+                      value={dayWater}
+                      disabled={isReadonly}
+                      onChange={(e) => {
+                        if (isReadonly) return;
+                        const val = e.target.value;
+                        setDayWater(val);
+                        autoSaveDay({
+                          waterLiters: val === "" ? undefined : Number(val),
+                        });
+                      }}
+                    />
                   </div>
 
+                  {/* WORKOUT tile - list of workouts with edit/delete */}
                   <div className="challenge-tile">
                     <b>🏋️ Workout</b>
 
                     {workouts.length === 0 ? (
-                      <p className="workout-empty">
-                        No workouts yet.
-                      </p>
+                      <p className="workout-empty">No workouts yet.</p>
                     ) : (
                       workouts.map((w) => (
-                        <div
-                          key={w._id}
-                          className="food-item"
-                        >
+                        <div key={w._id} className="food-item">
                           <div>
                             <strong>{w.type}</strong>
                             <p className="small-text">
-                              {w.duration} min •{" "}
-                              {w.calories} kcal
+                              {w.duration} min • {w.calories} kcal
                             </p>
                           </div>
 
                           <div className="food-actions">
                             <button
-                            disabled={isReadonly}
-                            onClick={() => {
-                              if (isReadonly) return;
-                              setEditingWorkout(w);
-                            }}
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            disabled={isReadonly}
-                            onClick={() => {
-                              if (isReadonly) return;
-                              handleDeleteWorkout(w._id);
-                            }}
-                          >
-                            ❌
-                          </button>
-
+                              disabled={isReadonly}
+                              onClick={() => {
+                                if (isReadonly) return;
+                                setEditingWorkout(w);
+                              }}
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              disabled={isReadonly}
+                              onClick={() => {
+                                if (isReadonly) return;
+                                handleDeleteWorkout(w._id);
+                              }}
+                            >
+                              ❌
+                            </button>
                           </div>
                         </div>
                       ))
                     )}
 
                     <button
-                    disabled={isReadonly}
-                    onClick={() => {
-                      if (isReadonly) return;
-                      setShowWorkoutModal(true);
-                    }}
-                  >
-                    + Add
-                  </button>
-
+                      disabled={isReadonly}
+                      onClick={() => {
+                        if (isReadonly) return;
+                        setShowWorkoutModal(true);
+                      }}
+                    >
+                      + Add
+                    </button>
                   </div>
 
+                  {/* STEPS tile - auto-saves on change */}
                   <div className="challenge-tile challenge-tile-fixed">
                     <b>🚶 Steps</b>
                     <input
-                    className="challenge-input"
-                    type="number"
-                    value={daySteps}
-                    disabled={isReadonly}
-                    onChange={(e) => {
-                      if (isReadonly) return;
-                      const val = e.target.value;
-                      setDaySteps(val);
-                      autoSaveDay({
-                        steps:
-                          val === ""
-                            ? undefined
-                            : Number(val),
-                      });
-                    }}
-                  />
-
+                      className="challenge-input"
+                      type="number"
+                      value={daySteps}
+                      disabled={isReadonly}
+                      onChange={(e) => {
+                        if (isReadonly) return;
+                        const val = e.target.value;
+                        setDaySteps(val);
+                        autoSaveDay({
+                          steps: val === "" ? undefined : Number(val),
+                        });
+                      }}
+                    />
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* bottom action buttons */}
             <div className="challenge-actions">
               <button
                 className="secondary-btn"
@@ -476,12 +463,12 @@ function ChallengePage({ meals }) {
         )}
       </div>
 
+      {/* ================= MODALS ================= */}
       {editingWorkout && (
         <EditWorkoutModal
           workout={editingWorkout}
           onClose={() => setEditingWorkout(null)}
           onSuccess={() => loadWorkouts(dayToShow?._id)}
-
         />
       )}
 
@@ -489,8 +476,6 @@ function ChallengePage({ meals }) {
         <AddWorkoutModal
           onClose={() => setShowWorkoutModal(false)}
           onSuccess={() => loadWorkouts(dayToShow?._id)}
-
-
         />
       )}
     </div>

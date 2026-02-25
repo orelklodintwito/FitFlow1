@@ -14,25 +14,29 @@ import {
   resetChallengeDays,
 } from "../services/challengeDays";
 
-
 import { CHALLENGE_RULES } from "../challenges/challengeRules";
 
+// main hook for the challenge page - handles all challenge logic, state, and API calls
+// this is a big hook because the challenge page has a lot going on:
+// selecting a challenge, custom challenge setup, daily progress tracking, viewing past days
 export function useChallengePage(meals) {
-  // select | custom | active
+  // step controls which screen to show: "select" | "custom" | "active"
   const [step, setStep] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // custom challenge form fields
   const [durationDays, setDurationDays] = useState("");
   const [workoutsGoal, setWorkoutsGoal] = useState("");
 
+  // the active challenge object from the server
   const [challenge, setChallenge] = useState(null);
-  const [today, setToday] = useState(null);        // היום האמיתי
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [viewedDay, setViewedDay] = useState(null); // 👈 יום לצפייה
+  const [today, setToday] = useState(null);           // the actual current day data
+  const [selectedDay, setSelectedDay] = useState(null); // which day number is selected in UI
+  const [viewedDay, setViewedDay] = useState(null);     // day data when viewing a past day
   const [viewingPastDay, setViewingPastDay] = useState(false);
 
-  // custom challenge fields
+  // custom challenge goal fields
   const [steps, setSteps] = useState("");
   const [water, setWater] = useState("");
   const [reading, setReading] = useState("");
@@ -41,37 +45,42 @@ export function useChallengePage(meals) {
 
   const [customError, setCustomError] = useState("");
 
-  // daily inputs
+  // daily progress inputs (water, reading, steps for the current/viewed day)
   const [dayWater, setDayWater] = useState("");
   const [dayReading, setDayReading] = useState("");
   const [daySteps, setDaySteps] = useState("");
 
-  // ui
+  // ui state
   const [savingDay, setSavingDay] = useState(false);
   const [dayError, setDayError] = useState("");
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
 
+  // get the rules for the current challenge type (e.g. "75hard" -> rules object)
   const rules = useMemo(() => {
     if (!challenge) return null;
     return CHALLENGE_RULES[challenge.type] || null;
   }, [challenge]);
 
+  // custom challenges store duration on the challenge itself, presets use rules
   const totalDays =
     challenge?.type === "custom"
       ? challenge?.durationDays
       : rules?.durationDays;
 
   /* ================= HELPERS ================= */
-const loadWorkouts = async (challengeDayId) => {
-  try {
-    const res = await getWorkouts(challengeDayId);
-    setWorkouts(res.data || []);
-  } catch (err) {
-    console.error("Failed to load workouts", err);
-  }
-};
 
+  // fetch workouts for a specific challenge day
+  const loadWorkouts = async (challengeDayId) => {
+    try {
+      const res = await getWorkouts(challengeDayId);
+      setWorkouts(res.data || []);
+    } catch (err) {
+      console.error("Failed to load workouts", err);
+    }
+  };
 
+  // refresh today's challenge day data from the server
+  // skipped when viewing a past day so it doesn't overwrite the viewed data
   const refreshToday = async () => {
     if (viewingPastDay) return;
     try {
@@ -82,6 +91,7 @@ const loadWorkouts = async (challengeDayId) => {
         setSelectedDay(res.data.dayNumber);
       }
 
+      // populate the daily input fields with existing data
       if (res.data) {
         setDayWater(
           res.data.waterLiters != null ? String(res.data.waterLiters) : ""
@@ -102,8 +112,10 @@ const loadWorkouts = async (challengeDayId) => {
     }
   };
 
-  /* ================= LOAD ================= */
-   useEffect(() => {
+  /* ================= INITIAL LOAD ================= */
+  // on mount - check if user has an active challenge
+  // if yes -> show "active" screen, if no -> show "select" screen
+  useEffect(() => {
     const load = async () => {
       try {
         const res = await getChallenge();
@@ -111,6 +123,7 @@ const loadWorkouts = async (challengeDayId) => {
         if (res.data?.challenge) {
           setChallenge(res.data.challenge);
 
+          // if the server also returned today's day data, use it
           if (res.data.day) {
             setToday(res.data.day);
             setSelectedDay(res.data.day.dayNumber);
@@ -147,7 +160,7 @@ const loadWorkouts = async (challengeDayId) => {
     load();
   }, []);
 
-  /* ================= PRESET ================= */
+  /* ================= START PRESET CHALLENGE ================= */
   const startPresetChallenge = async (type) => {
     try {
       setLoading(true);
@@ -166,7 +179,7 @@ const loadWorkouts = async (challengeDayId) => {
     }
   };
 
-  /* ================= CUSTOM ================= */
+  /* ================= SAVE CUSTOM CHALLENGE ================= */
   const handleCustomSave = async (e) => {
     e.preventDefault();
     setCustomError("");
@@ -195,21 +208,22 @@ const loadWorkouts = async (challengeDayId) => {
     }
   };
 
-  /* ================= DAY ================= */
+  /* ================= DAILY ACTIONS ================= */
+
   const handleDeleteWorkout = async (id) => {
     const confirmed = window.confirm("Delete this workout?");
     if (!confirmed) return;
 
     try {
       await deleteWorkout(id);
-await loadWorkouts(viewedDay?._id || today?._id);
-
-
+      // reload workouts for whichever day is currently displayed
+      await loadWorkouts(viewedDay?._id || today?._id);
     } catch {
       alert("Failed to delete workout");
     }
   };
 
+  // silently saves day data without UI feedback (used for auto-save on input change)
   const autoSaveDay = async (payload) => {
     try {
       await saveChallengeDay(payload);
@@ -218,6 +232,7 @@ await loadWorkouts(viewedDay?._id || today?._id);
     }
   };
 
+  // explicit save with loading state and error handling
   const handleSaveDay = async () => {
     setDayError("");
     setSavingDay(true);
@@ -229,7 +244,7 @@ await loadWorkouts(viewedDay?._id || today?._id);
         steps: daySteps === "" ? undefined : Number(daySteps),
       });
       setViewingPastDay(false);
-      // ✅ חשוב: ריענון היום כדי לעבור ליום הבא בלי ריפרש
+      // refresh to get updated completion status and potentially move to next day
       await refreshToday();
     } catch {
       setDayError("Failed to save daily progress");
@@ -238,51 +253,45 @@ await loadWorkouts(viewedDay?._id || today?._id);
     }
   };
 
- const handleSelectDay = async (dayNumber) => {
-  try {
-    const res = await getChallengeDayByNumber(dayNumber);
+  // load a specific day's data when the user clicks on a day in the timeline
+  const handleSelectDay = async (dayNumber) => {
+    try {
+      const res = await getChallengeDayByNumber(dayNumber);
 
-    setSelectedDay(dayNumber);
-setViewedDay(res.data);
-setViewingPastDay(dayNumber !== today?.dayNumber);
-await loadWorkouts(res.data?._id);
+      setSelectedDay(dayNumber);
+      setViewedDay(res.data);
+      setViewingPastDay(dayNumber !== today?.dayNumber);
+      await loadWorkouts(res.data?._id);
 
+      // populate inputs with the selected day's data
+      setDayWater(res.data?.waterLiters != null ? String(res.data.waterLiters) : "");
+      setDayReading(res.data?.readingPages != null ? String(res.data.readingPages) : "");
+      setDaySteps(res.data?.steps != null ? String(res.data.steps) : "");
+    } catch {
+      alert("Failed to load selected day");
+    }
+  };
 
+  /* ================= DERIVED STATE ================= */
 
-    setDayWater(res.data?.waterLiters != null ? String(res.data.waterLiters) : "");
-    setDayReading(res.data?.readingPages != null ? String(res.data.readingPages) : "");
-    setDaySteps(res.data?.steps != null ? String(res.data.steps) : "");
-  } catch {
-    alert("Failed to load selected day");
-  }
-};
+  // readonly when viewing a past day (not today)
+  const isReadonly = selectedDay !== null && selectedDay !== today?.dayNumber;
 
+  // the day object that's actually displayed on screen
+  const dayToShow = isReadonly ? viewedDay : today;
 
-  /* ================= DERIVED ================= */
-const isReadonly = selectedDay !== null && selectedDay !== today?.dayNumber;
+  // filter meals to only show ones from the displayed day's date
+  let allMeals = [];
 
-// ⭐ זה היום שמוצג בפועל במסך
-const dayToShow = isReadonly ? viewedDay : today;
-
-// ✅ חישוב תזונה לפי תאריך ה־ChallengeDay (ולא לפי היום עכשיו)
-let allMeals = [];
-
-
-    if (dayToShow?.date && meals) {
-    const start = new Date(dayToShow.date);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-
-   allMeals = Object.values(meals)
-  .flat()
-  .filter((m) => {
-    return (
-      new Date(m.date).toDateString() ===
-      new Date(dayToShow.date).toDateString()
-    );
-  });
+  if (dayToShow?.date && meals) {
+    allMeals = Object.values(meals)
+      .flat()
+      .filter((m) => {
+        return (
+          new Date(m.date).toDateString() ===
+          new Date(dayToShow.date).toDateString()
+        );
+      });
   }
 
   const totalCalories = allMeals.reduce(
@@ -292,92 +301,98 @@ let allMeals = [];
 
   const calorieGoal = rules?.calories || 2000;
 
+  // within ±100 of goal counts as completed
   const nutritionCompleted =
-  Math.abs(totalCalories - calorieGoal) <= 100;
+    Math.abs(totalCalories - calorieGoal) <= 100;
 
-const taskStatus = [
-  { enabled: true, done: nutritionCompleted },
-  {
-    enabled: typeof rules?.waterLiters === "number",
-    done: dayToShow?.waterCompleted,
-  },
-  {
-    enabled: typeof rules?.readingPages === "number",
-    done: dayToShow?.readingCompleted,
-  },
-  {
-    enabled: typeof rules?.steps === "number",
-    done: dayToShow?.stepsCompleted,
-  },
-  {
-    enabled: !!rules?.workouts,
-    done: dayToShow?.workoutsCompleted,
-  },
-];
-
+  // build a list of all tasks and their completion status
+  // "enabled" = this task applies to the current challenge type
+  const taskStatus = [
+    { enabled: true, done: nutritionCompleted },
+    {
+      enabled: typeof rules?.waterLiters === "number",
+      done: dayToShow?.waterCompleted,
+    },
+    {
+      enabled: typeof rules?.readingPages === "number",
+      done: dayToShow?.readingCompleted,
+    },
+    {
+      enabled: typeof rules?.steps === "number",
+      done: dayToShow?.stepsCompleted,
+    },
+    {
+      enabled: !!rules?.workouts,
+      done: dayToShow?.workoutsCompleted,
+    },
+  ];
 
   const enabledTasks = taskStatus.filter((t) => t.enabled);
   const completedTasks = enabledTasks.filter((t) => t.done).length;
   const totalTasks = enabledTasks.length;
 
-  const progressPercent = Math.round((completedTasks / totalTasks) * 100);
+  // NOTE: if totalTasks is 0 this will be NaN (0/0). shouldn't happen in practice
+  // since nutrition is always enabled, but just in case:
+  const progressPercent = totalTasks > 0
+    ? Math.round((completedTasks / totalTasks) * 100)
+    : 0;
 
- const handleChangeChallenge = async () => {
-  const confirmed = window.confirm(
-    "Are you sure you want to change the challenge?\nAll progress will be deleted."
-  );
-  if (!confirmed) return;
+  /* ================= CHANGE / RESTART ================= */
 
-  try {
-    await deleteChallenge();      // ⬅️ מוחק את האתגר מהשרת
+  // delete the challenge entirely and go back to selection screen
+  const handleChangeChallenge = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to change the challenge?\nAll progress will be deleted."
+    );
+    if (!confirmed) return;
 
-    // ניקוי state מקומי
-    setChallenge(null);
-    setToday(null);
-    setSelectedDay(null);
-    setViewedDay(null);
+    try {
+      await deleteChallenge();
 
-    setStep("select");            // מעבר למסך הבחירה
-  } catch (err) {
-    console.error("Failed to delete challenge", err);
-    alert("Failed to change challenge");
-  }
-};
+      // clear all local state
+      setChallenge(null);
+      setToday(null);
+      setSelectedDay(null);
+      setViewedDay(null);
 
+      setStep("select");
+    } catch (err) {
+      console.error("Failed to delete challenge", err);
+      alert("Failed to change challenge");
+    }
+  };
 
+  // keep the same challenge but reset all daily progress back to day 1
   const handleRestartChallenge = async () => {
-  const confirmed = window.confirm(
-    "Are you sure you want to restart the challenge?\nAll progress will be reset."
-  );
-  if (!confirmed) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to restart the challenge?\nAll progress will be reset."
+    );
+    if (!confirmed) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // מוחקים רק ימים
-    await resetChallengeDays();
+      // delete all challenge days on the server
+      await resetChallengeDays();
 
-    // ריענון היום – יווצר Day 1 חדש מהשרת
-    await refreshToday();
+      // refresh - server will create a new Day 1
+      await refreshToday();
 
-    // ניקוי state של צפייה
-    setSelectedDay(1);
-    setViewedDay(null);
-    setViewingPastDay(false);
+      // reset viewing state
+      setSelectedDay(1);
+      setViewedDay(null);
+      setViewingPastDay(false);
 
-    // נשארים במסך active
-    setStep("active");
-  } catch (err) {
-    console.error("Failed to restart challenge", err);
-    alert("Failed to restart challenge");
-  } finally {
-    setLoading(false);
-  }
-};
+      setStep("active");
+    } catch (err) {
+      console.error("Failed to restart challenge", err);
+      alert("Failed to restart challenge");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
-
+  /* ================= RETURN ================= */
   return {
     // state
     step,
@@ -392,8 +407,6 @@ const taskStatus = [
     showWorkoutModal,
     viewedDay,
     dayToShow,
-
-
 
     // inputs
     durationDays,
@@ -413,7 +426,7 @@ const taskStatus = [
     daySteps,
     setDaySteps,
 
-    // ui
+    // ui / derived
     savingDay,
     dayError,
     customError,

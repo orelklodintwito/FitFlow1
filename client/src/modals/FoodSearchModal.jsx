@@ -4,69 +4,70 @@ import FoodItem from "../components/FoodItem.jsx";
 import { addMeal } from "../services/meals";
 import { saveChallengeDay } from "../services/challengeDays";
 
+// modal for searching foods from OpenFoodFacts API and adding them as meals
+// receives the meal type (breakfast, lunch, etc.) and callbacks for success/close
 function FoodSearchModal({ meal, onClose, onSuccess }) {
   const [query, setQuery] = useState("");
-  const [url, setUrl] = useState(null);
-  const [loadingAdd, setLoadingAdd] = useState(false);
   const [foods, setFoods] = useState([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
- const searchFood = async () => {
-  if (!query.trim()) return;
+  // search OpenFoodFacts API for products matching the query
+  const searchFood = async () => {
+    if (!query.trim()) return;
 
-  const apiUrl = 
-  `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${query}&search_simple=1&action=process&json=1&page_size=12`;
+    const apiUrl =
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=12`;
 
-  try {
-    setLoadingSearch(true);
-    setHasSearched(false);   // ⬅️ חשוב
-    setFoods([]);
-
-    const res = await fetch(apiUrl);
-    const data = await res.json();
-
-    setFoods(data.products || []);
-    setUrl(apiUrl);
-  } catch (err) {
-    console.error("Failed to fetch foods", err);
-    setFoods([]);
-  } finally {
-    setLoadingSearch(false);
-    setHasSearched(true);    // ⬅️ חשוב
-  }
-};
-
-
-  const handleAddFood = async (item) => {
-  try {
-    setLoadingAdd(true);
-
-    // ✅ הוספת האוכל – זה הקריטי
-    await addMeal({
-      name: item.product_name || "Unknown",
-      calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
-      protein: item.nutriments?.proteins_100g ?? 0,
-      mealType: meal,
-    });
-
-    // ⚠️ עדכון אתגר – לא מפיל אם נכשל
     try {
-      await saveChallengeDay({});
+      setLoadingSearch(true);
+      setHasSearched(false); // reset so "No results" doesn't flash during loading
+      setFoods([]);
+
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+
+      setFoods(data.products || []);
     } catch (err) {
-      console.warn("⚠️ saveChallengeDay failed (food search)", err);
+      console.error("Failed to fetch foods", err);
+      setFoods([]);
+    } finally {
+      setLoadingSearch(false);
+      setHasSearched(true); // now safe to show "No results" if empty
     }
+  };
 
-    onSuccess();
-    onClose();
-  } catch (err) {
-    console.error("Failed to add food", err);
-    alert("Failed to add food");
-  } finally {
-    setLoadingAdd(false);
-  }
-};
+  // add a selected food item as a meal
+  const handleAddFood = async (item) => {
+    try {
+      setLoadingAdd(true);
 
+      // step 1: save the meal - this is the critical part
+      await addMeal({
+        name: item.product_name || "Unknown",
+        calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
+        protein: item.nutriments?.proteins_100g ?? 0,
+        mealType: meal,
+      });
+
+      // step 2: update challenge day stats (non-blocking)
+      try {
+        await saveChallengeDay({});
+      } catch (err) {
+        console.warn("saveChallengeDay failed (food search)", err);
+      }
+
+      // step 3: refresh parent and close
+      await onSuccess?.();
+      setLoadingAdd(false);
+      onClose?.();
+    } catch (err) {
+      console.error("Failed to add food", err);
+      alert("Failed to add food");
+      setLoadingAdd(false);
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -83,15 +84,18 @@ function FoodSearchModal({ meal, onClose, onSuccess }) {
         <button className="modal-btn" onClick={searchFood}>
           Search
         </button>
+
+        {/* loading indicator while searching */}
         {loadingSearch && (
-          <p className="loading-text">🔄 Searching food data…</p>
+          <p className="loading-text">Searching food data…</p>
         )}
 
+        {/* show "No results" only after search completed with empty results */}
         {hasSearched && !loadingSearch && foods.length === 0 && (
           <p className="empty-text">No results</p>
         )}
 
-
+        {/* search results list */}
         <div className="modal-results">
           {foods.map((item) => (
             <FoodItem

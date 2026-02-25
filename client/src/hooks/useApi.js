@@ -1,31 +1,36 @@
 import { useEffect, useState } from "react";
 
+// custom hook for fetching data from our API
+// returns { data, loading, error } so the component can handle each state
 export function useApi(url) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!url) return;
+    if (!url) return; // skip if no url provided
 
     setLoading(true);
     setError(null);
 
-// אם אנחנו בפרודקשן - משתמשים בכתובת של רנדר. 
-// אם אנחנו בפיתוח - משתמשים בשרת המקומי (למשל localhost:5000)
-// const BASE_URL = import.meta.env.PROD
- // ? "https://fitflow1.onrender.com"
- // : "http://localhost:5000"; 
-const BASE_URL = "https://fitflow1.onrender.com";
-const fullUrl = `${BASE_URL}${url}`;
+    // NOTE: BASE_URL is hardcoded to the production server.
+    // the commented-out code below would switch between prod/dev automatically.
+    // might want to bring that back so you don't hit production during development
+    // const BASE_URL = import.meta.env.PROD
+    //   ? "https://fitflow1.onrender.com"
+    //   : "http://localhost:5000";
+    const BASE_URL = "https://fitflow1.onrender.com";
+    const fullUrl = `${BASE_URL}${url}`;
 
-    // 🔥 לוג קריטי – חייב להופיע בפרודקשן
-    console.log("🔥 useApi fetch:", {
-      PROD: import.meta.env.PROD,
-      fullUrl,
-    });
+    // abort controller - cancels the fetch if the component unmounts
+    // prevents "setState on unmounted component" warnings
+    const controller = new AbortController();
 
-    fetch(fullUrl)
+    if (!import.meta.env.PROD) {
+      console.log("useApi fetch:", { fullUrl });
+    }
+
+    fetch(fullUrl, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Network error: ${res.status}`);
@@ -37,10 +42,15 @@ const fullUrl = `${BASE_URL}${url}`;
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ useApi error:", err);
+        // ignore abort errors - they happen naturally on unmount
+        if (err.name === "AbortError") return;
+        console.error("useApi error:", err);
         setError(err.message);
         setLoading(false);
       });
+
+    // cleanup - abort fetch if url changes or component unmounts
+    return () => controller.abort();
   }, [url]);
 
   return { data, loading, error };
