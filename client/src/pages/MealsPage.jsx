@@ -88,13 +88,13 @@ const filteredMeals = Object.fromEntries(
   /* ===================== ADD HANDLERS ===================== */
   const handleManualAdd = () => {
   if (!openManualFood) return;
-  openManualFood(selectedMeal);
+openManualFood(selectedMeal, location.state?.challengeDayId);
   setSelectedMeal(null);
 };
 
 const handleApiAdd = () => {
   if (!openFoodSearch) return;
-  openFoodSearch(selectedMeal);
+openFoodSearch(selectedMeal, location.state?.challengeDayId);
   setSelectedMeal(null);
 };
 

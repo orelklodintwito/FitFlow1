@@ -3,7 +3,7 @@ import { addMeal } from "../services/meals";
 import { saveChallengeDay } from "../services/challengeDays";
 import "../styles/modal.css";
 
-function ManualFoodModal({ meal, onClose, onSuccess }) {
+function ManualFoodModal({ meal, challengeDayId, onClose, onSuccess }) {
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
@@ -11,17 +11,18 @@ function ManualFoodModal({ meal, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
   if (!foodName || !calories) return;
-
+  
   try {
     setLoading(true);
 
     // שמירת הארוחה – זה העיקר
     await addMeal({
-      name: foodName,
-      calories: Number(calories),
-      protein: Number(protein || 0),
-      mealType: meal,
-    });
+  name: foodName,
+  calories: Number(calories),
+  protein: Number(protein || 0),
+  mealType: meal,
+  challengeDay: challengeDayId || null,
+});
 
     // עדכון אתגר – לא מפיל אם נכשל
     try {
