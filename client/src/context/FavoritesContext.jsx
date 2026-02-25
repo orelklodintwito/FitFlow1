@@ -7,12 +7,12 @@ export function FavoritesProvider({ children }) {
   
 const [userId, setUserId] = useState(() => {
   const profile = JSON.parse(localStorage.getItem("userProfile"));
-  return profile?.id || null;
+  return profile?.id || profile?._id || profile?.email || null;
 });
 useEffect(() => {
   const syncUser = () => {
     const profile = JSON.parse(localStorage.getItem("userProfile"));
-    setUserId(profile?.id || null);
+setUserId(profile?.id || profile?._id || profile?.email || null);
   };
 
   window.addEventListener("storage", syncUser);
