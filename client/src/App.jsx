@@ -210,7 +210,7 @@ const openFoodSearch = (meal, challengeDayId = null) => {
       {showApiModal && (
         <FoodSearchModal
           meal={mealType}
-          challengeDayId={challengeDayForModal}
+          challengeDate={challengeDayForModal}
           onClose={() => setShowApiModal(false)}
           onSuccess={reloadMealsFromServer}
         />
@@ -219,7 +219,7 @@ const openFoodSearch = (meal, challengeDayId = null) => {
       {showManualModal && (
         <ManualFoodModal
           meal={mealType}
-          challengeDayId={challengeDayForModal}
+          challengeDate={challengeDayForModal}
           onClose={() => setShowManualModal(false)}
           onSuccess={reloadMealsFromServer}
         />

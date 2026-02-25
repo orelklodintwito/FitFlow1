@@ -6,7 +6,7 @@ import { saveChallengeDay } from "../services/challengeDays";
 
 // modal for searching foods from OpenFoodFacts API and adding them as meals
 // receives the meal type (breakfast, lunch, etc.) and callbacks for success/close
-function FoodSearchModal({ meal, challengeDayId, onClose, onSuccess }) {
+function FoodSearchModal({ meal, challengeDate, onClose, onSuccess }) {
   const [query, setQuery] = useState("");
   const [foods, setFoods] = useState([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
@@ -45,13 +45,12 @@ function FoodSearchModal({ meal, challengeDayId, onClose, onSuccess }) {
 
       // step 1: save the meal - this is the critical part
       await addMeal({
-        name: foodName,
-        calories: Number(calories),
-        protein: Number(protein || 0),
+        name: item.product_name || "Unknown",
+        calories: item.nutriments?.["energy-kcal_100g"] ?? 0,
+        protein: item.nutriments?.proteins_100g ?? 0,
         mealType: meal,
-        challengeDay: challengeDayId || null,
+        date: challengeDate ? new Date(challengeDate) : new Date(),
       });
-
       // step 2: update challenge day stats (non-blocking)
       try {
         await saveChallengeDay({});

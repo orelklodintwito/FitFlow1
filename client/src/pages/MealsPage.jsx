@@ -43,7 +43,7 @@ function MealsPage({
 
   /* ===================== FILTER BY DATE ===================== */
   const now = new Date();const baseDate = dateFromChallenge || new Date();
-  const challengeDayId = location.state?.challengeDayId || null;
+ 
 
 const filteredMeals = Object.fromEntries(
   Object.entries(meals).map(([mealName, list]) => [
@@ -87,16 +87,16 @@ const filteredMeals = Object.fromEntries(
 
   /* ===================== ADD HANDLERS ===================== */
   const handleManualAdd = () => {
-  if (!openManualFood) return;
-  openManualFood(selectedMeal, challengeDayId);
-  setSelectedMeal(null);
-};
+    if (!openManualFood) return;
+    openManualFood(selectedMeal, dateFromChallenge);
+    setSelectedMeal(null);
+  };
 
-const handleApiAdd = () => {
-  if (!openFoodSearch) return;
-  openFoodSearch(selectedMeal, challengeDayId);
-  setSelectedMeal(null);
-};
+  const handleApiAdd = () => {
+    if (!openFoodSearch) return;
+    openFoodSearch(selectedMeal, dateFromChallenge);
+    setSelectedMeal(null);
+  };
 
 
   /* ===================== EDIT MODAL ===================== */
