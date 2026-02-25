@@ -5,7 +5,7 @@ import "../styles/modal.css";
 
 // modal for manually adding a food item (instead of searching the API)
 // user types in the name, calories, and protein themselves
-function ManualFoodModal({ meal, onClose, onSuccess }) {
+function ManualFoodModal({ meal, challengeDayId, onClose, onSuccess }){
   const [foodName, setFoodName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
@@ -24,6 +24,7 @@ function ManualFoodModal({ meal, onClose, onSuccess }) {
         calories: Number(calories),
         protein: Number(protein || 0),
         mealType: meal,
+        challengeDay: challengeDayId || null,
       });
 
       // step 2: update challenge day stats (non-blocking)

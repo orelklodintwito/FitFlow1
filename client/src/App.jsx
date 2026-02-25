@@ -97,15 +97,19 @@ function App() {
   const [showApiModal, setShowApiModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
 
-  const openFoodSearch = (meal) => {
-    setMealType(meal);
-    setShowApiModal(true);
-  };
+  const [challengeDayForModal, setChallengeDayForModal] = useState(null);
 
-  const openManualFood = (meal) => {
-    setMealType(meal);
-    setShowManualModal(true);
-  };
+const openManualFood = (meal, challengeDayId = null) => {
+  setMealType(meal);
+  setChallengeDayForModal(challengeDayId);
+  setShowManualModal(true);
+};
+
+const openFoodSearch = (meal, challengeDayId = null) => {
+  setMealType(meal);
+  setChallengeDayForModal(challengeDayId);
+  setShowApiModal(true);
+};
 
   useEffect(() => {
     if (!isLoggedIn) document.body.classList.add("auth-page");
@@ -206,6 +210,7 @@ function App() {
       {showApiModal && (
         <FoodSearchModal
           meal={mealType}
+          challengeDayId={challengeDayForModal}
           onClose={() => setShowApiModal(false)}
           onSuccess={reloadMealsFromServer}
         />
@@ -214,6 +219,7 @@ function App() {
       {showManualModal && (
         <ManualFoodModal
           meal={mealType}
+          challengeDayId={challengeDayForModal}
           onClose={() => setShowManualModal(false)}
           onSuccess={reloadMealsFromServer}
         />
