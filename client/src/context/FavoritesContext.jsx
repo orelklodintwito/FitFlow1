@@ -1,6 +1,6 @@
 // src/context/FavoritesContext.jsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-
+import { useLocalStorage } from "../hooks/useLocalStorage";
 const FavoritesContext = createContext(null);
 
 export function FavoritesProvider({ children }) {
@@ -24,15 +24,7 @@ setUserId(profile?.id || profile?._id || profile?.email || null);
 
 const storageKey = userId ? `favorites_${userId}` : "favorites_guest";
 
-const [favorites, setFavorites] = useState([]);
-
-  useEffect(() => {
-  localStorage.setItem(storageKey, JSON.stringify(favorites));
-}, [favorites, storageKey]);
-useEffect(() => {
-  const saved = localStorage.getItem(storageKey);
-  setFavorites(saved ? JSON.parse(saved) : []);
-}, [storageKey]);
+const [favorites, setFavorites] = useLocalStorage(storageKey, []);
 
 
   // item צריך להכיל לפחות id ייחודי (או משהו קבוע כמו idMeal)
