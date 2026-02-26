@@ -284,13 +284,17 @@ export function useChallengePage(meals) {
   let allMeals = [];
 
   if (dayToShow?.date && meals) {
+    const dayStart = new Date(dayToShow.date);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
     allMeals = Object.values(meals)
       .flat()
       .filter((m) => {
-        return (
-          new Date(m.date).toDateString() ===
-          new Date(dayToShow.date).toDateString()
-        );
+        const mealDate = new Date(m.date);
+        return mealDate >= dayStart && mealDate < dayEnd;
       });
   }
 
