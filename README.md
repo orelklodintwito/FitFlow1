@@ -42,29 +42,195 @@ Server:
 
 ---
 
+## 🔁 Core Features & CRUD Operations
+
+FitFlow allows users to fully manage their fitness journey through the following operations:
+
+### 🏁 Challenge Management
+- Select a predefined challenge (14 / 30 / 75 days)
+- Create a personalized custom challenge
+- Update challenge progress
+- Track daily completion status
+
+### 🏋️ Workout Tracking (Within Challenge)
+- Add workouts to a specific challenge day
+- Edit existing workouts
+- Delete workouts
+- Mark workout as completed
+
+### 📖 Daily Habits Tracking
+Within each challenge day, users can track:
+- Reading progress
+- Daily steps
+- Water intake
+
+### 🍽 Meal & Nutrition Management
+- Create meals
+- View daily meals
+- Update meals
+- Delete meals
+- Track calories & protein intake
+
+### ⭐ Favorites System
+- Add recipes from external API to favorites
+- Persist favorites using local storage
+- Remove recipes from favorites
+---
+
 ## 📁 Project Structure
 
 FitFlow/
+│
 ├── client/
+│   │
+│   ├── public/
+│   │   └── vite.svg
+│   │
 │   ├── src/
-│   │   ├── pages/
+│   │   │
+│   │   ├── admin/
+│   │   │   ├── components/
+│   │   │   │   ├── AdminChallengeFilter.jsx
+│   │   │   │   ├── AdminKpiRow.jsx
+│   │   │   │   ├── AdminRecentActivity.jsx
+│   │   │   │   ├── AdminRoleFilter.jsx
+│   │   │   │   ├── AdminStatusFilter.jsx
+│   │   │   │   ├── AvgBmiCard.jsx
+│   │   │   │   ├── AvgHeightCard.jsx
+│   │   │   │   ├── AvgWeightCard.jsx
+│   │   │   │   ├── BmiBar.jsx
+│   │   │   │   ├── MiniStatBar.jsx
+│   │   │   │   ├── PopularChallengesCard.jsx
+│   │   │   │   └── PopularMealsCard.jsx
+│   │   │   │
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── AdminLayout.jsx
+│   │   │   ├── AdminRouteGuard.jsx
+│   │   │   ├── AdminUsers.jsx
+│   │   │   └── admin.css
+│   │   │
+│   │   ├── assets/
+│   │   │   └── images/
+│   │   │       ├── chal.png
+│   │   │       ├── homeback.png
+│   │   │       └── login_bg.png
+│   │   │
+│   │   ├── challenges/
+│   │   │   └── challengeRules.js
+│   │   │
 │   │   ├── components/
-│   │   ├── hooks/
+│   │   │   ├── Card.jsx
+│   │   │   ├── FoodItem.jsx
+│   │   │   ├── Header.jsx
+│   │   │   ├── NutritionDonut.jsx
+│   │   │   ├── nutritionDonut.css
+│   │   │   └── PageState.jsx
+│   │   │
 │   │   ├── context/
+│   │   │   └── FavoritesContext.jsx
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useApi.js
+│   │   │   ├── useChallengePage.js
+│   │   │   ├── useHomeDashboard.js
+│   │   │   └── useLocalStorage.js
+│   │   │
+│   │   ├── modals/
+│   │   │   ├── AddWorkoutModal.jsx
+│   │   │   ├── EditFoodModal.jsx
+│   │   │   ├── EditWorkoutModal.jsx
+│   │   │   ├── FoodSearchModal.jsx
+│   │   │   └── ManualFoodModal.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── ApiPage.jsx
+│   │   │   ├── ChallengePage.jsx
+│   │   │   ├── CreateChallenge.jsx
+│   │   │   ├── EditProfilePage.jsx
+│   │   │   ├── FoodSearch.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── MealsPage.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   ├── SettingsPage.jsx
+│   │   │   └── Signup.jsx
+│   │   │
 │   │   ├── redux/
-│   │   └── styles/
-│   └── package.json
+│   │   │   ├── store.js
+│   │   │   └── themeSlice.js
+│   │   │
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   ├── auth.js
+│   │   │   ├── challenge.js
+│   │   │   ├── challengeDays.js
+│   │   │   ├── external.js
+│   │   │   ├── meals.js
+│   │   │   └── workouts.js
+│   │   │
+│   │   ├── styles/
+│   │   │   ├── api.css
+│   │   │   ├── auth.css
+│   │   │   ├── buttons.css
+│   │   │   ├── challenge.css
+│   │   │   ├── components.css
+│   │   │   ├── global.css
+│   │   │   ├── header.css
+│   │   │   ├── homepage.css
+│   │   │   ├── layout.css
+│   │   │   ├── meals.css
+│   │   │   └── modal.css
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   ├── .env
+│   │   └── production.env
+│   │
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   ├── .gitignore
+│   ├── .gitattributes
+│   ├── eslint.config.js
+│   └── index.html
 │
 ├── server/
-│   ├── routes/
+│   │
+│   ├── challenges/
+│   │   └── challengeRules.js
+│   │
 │   ├── controllers/
-│   ├── models/
+│   │   ├── adminController.js
+│   │   └── authController.js
+│   │
 │   ├── middleware/
-│   └── server.js
+│   │   ├── auth.js
+│   │   ├── authMiddleware.js
+│   │   └── adminMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Meal.js
+│   │   ├── Workout.js
+│   │   ├── Challenge.js
+│   │   └── ChallengeDay.js
+│   │
+│   ├── routes/
+│   │   ├── adminRoutes.js
+│   │   ├── auth.js
+│   │   ├── challenges.js
+│   │   ├── challengeDays.js
+│   │   ├── meals.js
+│   │   ├── workouts.js
+│   │   └── externalApi.js
+│   │
+│   ├── index.js
+│   ├── package.json
+│   ├── package-lock.json
+│   └── .env
 │
+├── structure.txt
 └── README.md
-
----
 
 ## 🚀 How to Run the Project (Local - Optional)
 
@@ -73,20 +239,22 @@ git clone https://github.com/orelklodintwito/FitFlow1.git
 cd FitFlow1
 
 2) Server setup:
-cd server
-npm install
 
-Create a .env file inside the server folder:
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=5000
+cd server  
+npm install  
+
+### 📄 Environment Variables
+
+Create a file named `.env` inside the `server` folder based on `.env.example`:
+
+MONGO_URI=your_mongodb_connection_string  
+JWT_SECRET=your_secret_key  
+PORT=5000  
+JWT_EXPIRES=7d  
 
 Run the server:
+
 npm start
-
-Server runs on:
-http://localhost:5000
-
 3) Client setup:
 cd client
 npm install
@@ -208,8 +376,8 @@ If the user reaches the 2000 kcal goal, the day is marked as complete regardless
 
 **Admin User**
 
-Email: adminn@test.com  
-Password: 1111  
+Email: shlomi@gmail.com 
+Password: shlomi  
 
 The admin user has full administrative privileges within the system.
 
