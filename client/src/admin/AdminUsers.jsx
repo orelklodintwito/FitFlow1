@@ -150,14 +150,24 @@ function AdminUsers() {
 
           {/* fixed: no double toggle - the component handles toggle internally,
               here we just pass the value straight through */}
-          <AdminRoleFilter
+         <AdminRoleFilter
             value={filters.role}
-            onChange={(role) => setFilters({ ...filters, role })}
+            onChange={(role) =>
+              setFilters({
+                ...filters,
+                role: filters.role === role ? "" : role,
+              })
+            }
           />
 
           <AdminStatusFilter
             value={filters.status}
-            onChange={(status) => setFilters({ ...filters, status })}
+            onChange={(status) =>
+              setFilters({
+                ...filters,
+                status: filters.status === status ? "" : status,
+              })
+            }
           />
         </div>
 
